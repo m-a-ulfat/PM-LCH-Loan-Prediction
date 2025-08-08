@@ -46,3 +46,15 @@ PM-LCH-Loan-Prediction/
 1. Clone the repository:
    ```bash
    git clone https://github.com/m-a-ulfat/PM-LCH-Loan-Prediction.git
+## 💌 Contact
+**Developer:** M.Asamullah Ulfat & Kashif Jilani  
+📧 Email: *bazmeulfat786@gamil.com*  
+## 📱 Connect with Me  
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/m-a-ulfat/)  
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/m.a._ulfat/)  
+[![X (Twitter)](https://img.shields.io/badge/X-1DA1F2?style=for-the-badge&logo=x-twitter&logoColor=white)](https://x.com/MAUlfat7)  
+[![Facebook](https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white)](https://www.facebook.com/profile.php?id=100086778335996)  
+[![TikTok](https://img.shields.io/badge/TikTok-000000?style=for-the-badge&logo=tiktok&logoColor=white)](https://www.tiktok.com/@m.a.ulfat1)  
+
+ 
