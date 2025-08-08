@@ -1,0 +1,3003 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PM-LCH Loan Application</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" /> -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #0052cc;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0052cc;
+      border-bottom: 2px solid #0052cc;
+      padding-bottom: 6px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .form-field {
+      flex: 1 1 45%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #0041a3;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"] {
+      padding: 10px 14px;
+      font-size: 1rem;
+      border: 1.8px solid #bbb;
+      border-radius: 6px;
+      transition: border-color 0.3s ease;
+      outline: none;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: #0052cc;
+      box-shadow: 0 0 6px #c2d1ff;
+    }
+
+    button[type="submit"] {
+      display: block;
+      margin: 30px auto 0;
+      background-color: #0052cc;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 14px 40px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0, 82, 204, 0.3);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #003d99;
+      box-shadow: 0 12px 24px rgba(0, 61, 153, 0.5);
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #e8f4ff;
+      border-left: 6px solid #007bff;
+      color: #004085;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    img {
+      display: block;
+      margin: 20px auto;
+      max-width: 715px;
+      border-radius: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-field {
+        flex: 1 1 100%;
+      }
+    }
+
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .tax-paid {
+      background-color: #e6ffed;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+
+    .tax-not-paid {
+      background-color: #fff0f0;
+      color: #a94442;
+      border: 2px solid #f5c6cb;
+    }
+  </style>
+</head>
+
+
+
+<body>
+  <div class="container">
+
+    <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" class="logo" />
+
+    <h2>PM-LCH Loan Application Form</h2>
+    <!---Prediction Message show---->
+    {% if prediction_text %}
+    {% if "Tax paid" in prediction_text %}
+    <div class="result tax-paid" id="prediction-message">
+      ✅ Applicant is eligible to pay tax amount
+    </div>
+    {% elif "Tax not paid" in prediction_text %}
+    <div class="result tax-not-paid" id="prediction-message">
+      ⚠️ Applicant is not eligible to pay tax amount
+    </div>
+    {% else %}
+    <div class="result" id="prediction-message">
+      {{ prediction_text }}
+    </div>
+    {% endif %}
+
+    <script>
+      // Hide the message after 10 seconds
+      window.addEventListener('DOMContentLoaded', function () {
+        const msg = document.getElementById("prediction-message");
+        if (msg) {
+          setTimeout(() => {
+            msg.style.display = "none";
+          }, 10000); // 10 seconds
+        }
+      });
+    </script>
+    {% endif %}
+<!-- 
+    {% if prediction_text %}
+    {% if "Tax paid" in prediction_text %}
+    <div class="result tax-paid">
+      ✅ {{ prediction_text }}
+    </div>
+    {% elif "Tax not paid" in prediction_text %}
+    <div class="result tax-not-paid">
+      ⚠️ {{ prediction_text }}
+    </div>
+    {% else %}
+    <div class="result">
+      {{ prediction_text }}
+    </div>
+    {% endif %}
+    {% endif %} -->
+
+    <form method="POST" action="/predict">
+      <!-- LOCATION -->
+      <div class="section">
+        <div class="section-title">Location</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="region">Region</label>
+            <select id="region" name="region" required>
+              <option value="" disabled selected>Select Region</option>
+              <option value="AJ&K">AJ&K</option>
+              <option value="Abbottabad">Abbottabad</option>
+              <option value="Attock">Attock</option>
+              <option value="Bahawalnagar">Bahawalnagar</option>
+              <option value="Bahawalpur">Bahawalpur</option>
+              <option value="Chakwal">Chakwal</option>
+              <option value="DG Khan">DG Khan</option>
+              <option value="FATA">FATA</option>
+              <option value="Faisalabad">Faisalabad</option>
+              <option value="Gilgit Baltistan">Gilgit Baltistan</option>
+              <option value="Gujranwala">Gujranwala</option>
+              <option value="Jhang">Jhang</option>
+              <option value="Jhelum">Jhelum</option>
+              <option value="Karachi">Karachi</option>
+              <option value="Kasur">Kasur</option>
+              <option value="Kohat">Kohat</option>
+              <option value="Lahore">Lahore</option>
+              <option value="Mianwali">Mianwali</option>
+              <option value="Multan">Multan</option>
+              <option value="Nowshera">Nowshera</option>
+              <option value="Quetta">Quetta</option>
+              <option value="Rawalpindi">Rawalpindi</option>
+              <option value="Sahiwal">Sahiwal</option>
+              <option value="Sargodha">Sargodha</option>
+              <option value="Sheikhupura">Sheikhupura</option>
+              <option value="Sukkur">Sukkur</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="area">Area</label>
+            <select id="area" name="area" required>
+              <option value="" disabled selected>Select Area</option>
+              <option value="Abbaspur">Abbaspur</option>
+              <option value="Abbottabad">Abbottabad</option>
+              <option value="Alipur">Alipur</option>
+              <option value="Attock">Attock</option>
+              <option value="Bahawalnagar">Bahawalnagar</option>
+              <option value="Bahawalpur">Bahawalpur</option>
+              <option value="Bajaur">Bajaur</option>
+              <option value="Bannu">Bannu</option>
+              <option value="Battagram">Battagram</option>
+              <option value="Bhakkar">Bhakkar</option>
+              <option value="Bhera">Bhera</option>
+              <option value="Burewala">Burewala</option>
+              <option value="Chakwal">Chakwal</option>
+              <option value="Chiniot">Chiniot</option>
+              <option value="Chishtian">Chishtian</option>
+              <option value="Chitral">Chitral</option>
+              <option value="D.G Khan">D.G Khan</option>
+              <option value="D.I. Khan">D.I. Khan</option>
+              <option value="Danyor">Danyor</option>
+              <option value="Data sahib">Data sahib</option>
+              <option value="Diamer">Diamer</option>
+              <option value="Faisalabad">Faisalabad</option>
+              <option value="Fateh Jang">Fateh Jang</option>
+              <option value="Gareebabad">Gareebabad</option>
+              <option value="Ghanche">Ghanche</option>
+              <option value="Ghizer">Ghizer</option>
+              <option value="Gilgit">Gilgit</option>
+              <option value="Gujranwala">Gujranwala</option>
+              <option value="Gujrat">Gujrat</option>
+              <option value="Gwadar">Gwadar</option>
+              <option value="Hafizabad">Hafizabad</option>
+              <option value="Hunza Nagar">Hunza Nagar</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Islamabad">Islamabad</option>
+              <option value="Jacob Abad">Jacob Abad</option>
+              <option value="Jahanian">Jahanian</option>
+              <option value="Jand">Jand</option>
+              <option value="Jhang">Jhang</option>
+              <option value="Jhelum">Jhelum</option>
+              <option value="Jhelum Valley">Jhelum Valley</option>
+              <option value="Kala Bagh">Kala Bagh</option>
+              <option value="Kallar Kahar">Kallar Kahar</option>
+              <option value="Kamoke">Kamoke</option>
+              <option value="Karachi">Karachi</option>
+              <option value="Kasur">Kasur</option>
+              <option value="Khanpur">Khanpur</option>
+              <option value="Khushab">Khushab</option>
+              <option value="Khuzdar">Khuzdar</option>
+              <option value="Khyber">Khyber</option>
+              <option value="Kohat">Kohat</option>
+              <option value="Korangi">Korangi</option>
+              <option value="Kot Abdul Malik">Kot Abdul Malik</option>
+              <option value="Kot Momin">Kot Momin</option>
+              <option value="Kotli">Kotli</option>
+              <option value="Kurrum">Kurrum</option>
+              <option value="Lasbela">Lasbela</option>
+              <option value="Layyah">Layyah</option>
+              <option value="Lodhran(Bahawalpur2)">Lodhran(Bahawalpur2)</option>
+              <option value="Loralai">Loralai</option>
+              <option value="Madhulal">Madhulal</option>
+              <option value="Mandi Bahauddin">Mandi Bahauddin</option>
+              <option value="Mansehra">Mansehra</option>
+              <option value="Mardan">Mardan</option>
+              <option value="Mian Channu">Mian Channu</option>
+              <option value="Mianwali">Mianwali</option>
+              <option value="Mingora">Mingora</option>
+              <option value="Mirpur">Mirpur</option>
+              <option value="Mohmand">Mohmand</option>
+              <option value="Multan">Multan</option>
+              <option value="Muridke">Muridke</option>
+              <option value="Muzaffarabad">Muzaffarabad</option>
+              <option value="Muzaffargarh">Muzaffargarh</option>
+              <option value="Narowal">Narowal</option>
+              <option value="Nishtar">Nishtar</option>
+              <option value="Nowshera">Nowshera</option>
+              <option value="Nushki">Nushki</option>
+              <option value="Okara">Okara</option>
+              <option value="Pattoki">Pattoki</option>
+              <option value="Peer Phulai">Peer Phulai</option>
+              <option value="Peshawar">Peshawar</option>
+              <option value="Pichnand">Pichnand</option>
+              <option value="Pind Dadan Khan">Pind Dadan Khan</option>
+              <option value="Quetta">Quetta</option>
+              <option value="Quidabad">Quidabad</option>
+              <option value="Rahim yar Khan">Rahim yar Khan</option>
+              <option value="Rajana">Rajana</option>
+              <option value="Rajanpur">Rajanpur</option>
+              <option value="Rangeel Pur">Rangeel Pur</option>
+              <option value="Rasheed Abad">Rasheed Abad</option>
+              <option value="Rawalakot">Rawalakot</option>
+              <option value="Rawalpindi">Rawalpindi</option>
+              <option value="Rohri">Rohri</option>
+              <option value="Saddar">Saddar</option>
+              <option value="Sahiwal">Sahiwal</option>
+              <option value="Salamatpura">Salamatpura</option>
+              <option value="Samundari">Samundari</option>
+              <option value="Sangla Hill">Sangla Hill</option>
+              <option value="Sargodha">Sargodha</option>
+              <option value="Shangla">Shangla</option>
+              <option value="Shorkot">Shorkot</option>
+              <option value="Sialkot">Sialkot</option>
+              <option value="Skardu">Skardu</option>
+              <option value="Sodiwal">Sodiwal</option>
+              <option value="Sujawal">Sujawal</option>
+              <option value="Sukkur">Sukkur</option>
+              <option value="Swabi">Swabi</option>
+              <option value="Talagang">Talagang</option>
+              <option value="Tank">Tank</option>
+              <option value="Taunsa Sharif">Taunsa Sharif</option>
+              <option value="Taxila">Taxila</option>
+              <option value="Tench Bhata">Tench Bhata</option>
+              <option value="Thatha">Thatha</option>
+              <option value="Theeng More">Theeng More</option>
+              <option value="Thokar">Thokar</option>
+              <option value="Toba Tek Singh">Toba Tek Singh</option>
+              <option value="Vehari">Vehari</option>
+
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="branch">Branch</label>
+            <select id="branch" name="branch">
+              <option value="" disabled selected>Select Branch</option>
+              <option value="49 Tail(Agri)">49 Tail(Agri)</option>
+              <option value="5 Chak Bara">5 Chak Bara</option>
+              <option value="79 Adda (Agri)">79 Adda (Agri)</option>
+              <option value="88 Phatak">88 Phatak</option>
+              <option value="Abbaspur">Abbaspur</option>
+              <option value="Abbottabad">Abbottabad</option>
+              <option value="Abbottabad-2">Abbottabad-2</option>
+              <option value="Abdul Hakeem">Abdul Hakeem</option>
+              <option value="Adda Dad Fatiana">Adda Dad Fatiana</option>
+              <option value="Adhi kot">Adhi kot</option>
+              <option value="Adhwal">Adhwal</option>
+              <option value="Adyala Road">Adyala Road</option>
+              <option value="Ahmad Pur Lamma">Ahmad Pur Lamma</option>
+              <option value="Ahmadpur Sial">Ahmadpur Sial</option>
+              <option value="Ahmedpur Sharqia-1">Ahmedpur Sharqia-1</option>
+              <option value="Air Port">Air Port</option>
+              <option value="Aka Khel">Aka Khel</option>
+              <option value="Akbarpura">Akbarpura</option>
+              <option value="Akhtar Colony">Akhtar Colony</option>
+              <option value="Akora Khattak">Akora Khattak</option>
+              <option value="Alam Chowk">Alam Chowk</option>
+              <option value="Ali Abad">Ali Abad</option>
+              <option value="Ali Pur Chatha">Ali Pur Chatha</option>
+              <option value="Ali Pur-1">Ali Pur-1</option>
+              <option value="Ali Pur-2">Ali Pur-2</option>
+              <option value="Ali Town">Ali Town</option>
+              <option value="Allai">Allai</option>
+              <option value="Alpuri">Alpuri</option>
+              <option value="Amar Pura">Amar Pura</option>
+              <option value="Arifwala">Arifwala</option>
+              <option value="Arya Mohallah">Arya Mohallah</option>
+              <option value="Arzani Pur">Arzani Pur</option>
+              <option value="Astor">Astor</option>
+              <option value="Athara Hazari">Athara Hazari</option>
+              <option value="Athmuqam">Athmuqam</option>
+              <option value="Attock Agri">Attock Agri</option>
+              <option value="Attock-1">Attock-1</option>
+              <option value="Attock-2">Attock-2</option>
+              <option value="Attock-4">Attock-4</option>
+              <option value="Attock-5">Attock-5</option>
+              <option value="Ayun">Ayun</option>
+              <option value="Babar Mela">Babar Mela</option>
+              <option value="Babu Wala">Babu Wala</option>
+              <option value="Badami Bagh">Badami Bagh</option>
+              <option value="Badar Colony">Badar Colony</option>
+              <option value="Badar Colony-2">Badar Colony-2</option>
+              <option value="Badiana">Badiana</option>
+              <option value="Badin">Badin</option>
+              <option value="Baffa">Baffa</option>
+              <option value="Bagan">Bagan</option>
+              <option value="Bagh">Bagh</option>
+              <option value="Baghbanpura">Baghbanpura</option>
+              <option value="Bagrian">Bagrian</option>
+              <option value="Bahawalnagar-1">Bahawalnagar-1</option>
+              <option value="Bahawalnagar-2">Bahawalnagar-2</option>
+              <option value="Bahawalnagar-3">Bahawalnagar-3</option>
+              <option value="Bahawalpur Agriculture">Bahawalpur Agriculture</option>
+              <option value="Bahawalpur Bypass">Bahawalpur Bypass</option>
+              <option value="Bahawalpur-1">Bahawalpur-1</option>
+              <option value="Bahawalpur-2">Bahawalpur-2</option>
+              <option value="Bahawalpur-3">Bahawalpur-3</option>
+              <option value="Baka Khel">Baka Khel</option>
+              <option value="Bakhshu Pull">Bakhshu Pull</option>
+              <option value="Balakot">Balakot</option>
+              <option value="Baldia Town">Baldia Town</option>
+              <option value="Balkasar">Balkasar</option>
+              <option value="Baloch">Baloch</option>
+              <option value="Bandian Wala Pul">Bandian Wala Pul</option>
+              <option value="Bank Colony Chakri Road">Bank Colony Chakri Road</option>
+              <option value="Bannu-1">Bannu-1</option>
+              <option value="Bannu-2">Bannu-2</option>
+              <option value="Bara">Bara</option>
+              <option value="Bara-2">Bara-2</option>
+              <option value="Bari Imam">Bari Imam</option>
+              <option value="Barikot">Barikot</option>
+              <option value="Barkolti">Barkolti</option>
+              <option value="Barnala">Barnala</option>
+              <option value="Barnala (Agri)">Barnala (Agri)</option>
+              <option value="Barthi">Barthi</option>
+              <option value="Baseen">Baseen</option>
+              <option value="Baseera">Baseera</option>
+              <option value="Basir Pur">Basir Pur</option>
+              <option value="Basti">Basti</option>
+              <option value="Basti Khudadad">Basti Khudadad</option>
+              <option value="Battagram">Battagram</option>
+              <option value="Bawa Chak">Bawa Chak</option>
+              <option value="Bedian Road">Bedian Road</option>
+              <option value="Begum kot">Begum kot</option>
+              <option value="Behal">Behal</option>
+              <option value="Bela">Bela</option>
+              <option value="Besham">Besham</option>
+              <option value="Bhagwal">Bhagwal</option>
+              <option value="Bhakkar-1">Bhakkar-1</option>
+              <option value="Bhakkar-2">Bhakkar-2</option>
+              <option value="Bhalwal-1">Bhalwal-1</option>
+              <option value="Bhalwal-2">Bhalwal-2</option>
+              <option value="Bhard Wall">Bhard Wall</option>
+              <option value="Bhaun">Bhaun</option>
+              <option value="Bhawana">Bhawana</option>
+              <option value="Bheen">Bheen</option>
+              <option value="Bhera">Bhera</option>
+              <option value="Bhimber">Bhimber</option>
+              <option value="Bhittai Colony">Bhittai Colony</option>
+              <option value="Bhoa Hassan">Bhoa Hassan</option>
+              <option value="Bhubhar">Bhubhar</option>
+              <option value="Bijaar">Bijaar</option>
+              <option value="Booni">Booni</option>
+              <option value="Bosal">Bosal</option>
+              <option value="Brewery Road">Brewery Road</option>
+              <option value="Bucheki">Bucheki</option>
+              <option value="Bucheki-2">Bucheki-2</option>
+              <option value="Budhla Sant">Budhla Sant</option>
+              <option value="Bunga Hayat">Bunga Hayat</option>
+              <option value="Burewala">Burewala</option>
+              <option value="Burewala-2">Burewala-2</option>
+              <option value="Burj Attari">Burj Attari</option>
+              <option value="Canal Road Faisalabad">Canal Road Faisalabad</option>
+              <option value="Chak 105">Chak 105</option>
+              <option value="Chak 98 Fateh">Chak 98 Fateh</option>
+              <option value="Chak Beli Khan">Chak Beli Khan</option>
+              <option value="Chak Bhoun/Balkassar">Chak Bhoun/Balkassar</option>
+              <option value="Chak Chatha (Agri)">Chak Chatha (Agri)</option>
+              <option value="Chak Jalal Din">Chak Jalal Din</option>
+              <option value="Chak Jhumra">Chak Jhumra</option>
+              <option value="Chak Jhumra (Agriculture)">Chak Jhumra (Agriculture)</option>
+              <option value="Chak Madressa">Chak Madressa</option>
+              <option value="Chak No 8">Chak No 8</option>
+              <option value="Chak No.29">Chak No.29</option>
+              <option value="Chakar">Chakar</option>
+              <option value="Chakdara">Chakdara</option>
+              <option value="Chaklala">Chaklala</option>
+              <option value="Chakri">Chakri</option>
+              <option value="Chakswari">Chakswari</option>
+              <option value="Chakwal">Chakwal</option>
+              <option value="Chalt">Chalt</option>
+              <option value="Chanderay Road">Chanderay Road</option>
+              <option value="Changa Manga">Changa Manga</option>
+              <option value="Charhoi">Charhoi</option>
+              <option value="Charsadda">Charsadda</option>
+              <option value="Chatorkhand">Chatorkhand</option>
+              <option value="Chehla Bandi">Chehla Bandi</option>
+              <option value="Chichawatni">Chichawatni</option>
+              <option value="Chilas">Chilas</option>
+              <option value="Chiniot-2">Chiniot-2</option>
+              <option value="Chishtian-1">Chishtian-1</option>
+              <option value="Chishtian-2">Chishtian-2</option>
+              <option value="Chishtian-3">Chishtian-3</option>
+              <option value="Chitral">Chitral</option>
+              <option value="Choa Saidan Shah">Choa Saidan Shah</option>
+              <option value="Chot Dheeran">Chot Dheeran</option>
+              <option value="Chota Lahore">Chota Lahore</option>
+              <option value="Chota Manawala">Chota Manawala</option>
+              <option value="Chouhar Jamali">Chouhar Jamali</option>
+              <option value="Chowk Azam">Chowk Azam</option>
+              <option value="Chowk Azam Rural">Chowk Azam Rural</option>
+              <option value="Chowk Karamdad Qureshi">Chowk Karamdad Qureshi</option>
+              <option value="Chowk Kumharan Wala">Chowk Kumharan Wala</option>
+              <option value="Chowk Pindori">Chowk Pindori</option>
+              <option value="Chowki Bhagat">Chowki Bhagat</option>
+              <option value="Chung">Chung</option>
+              <option value="Chungi # 14 Multan-5">Chungi # 14 Multan-5</option>
+              <option value="Chunian">Chunian</option>
+              <option value="College Road Jhang">College Road Jhang</option>
+              <option value="D.G Khan-1">D.G Khan-1</option>
+              <option value="D.G Khan-2">D.G Khan-2</option>
+              <option value="D.I. Khan-2">D.I. Khan-2</option>
+              <option value="Dadyal">Dadyal</option>
+              <option value="Dahab">Dahab</option>
+              <option value="Dahranwala">Dahranwala</option>
+              <option value="Dajal">Dajal</option>
+              <option value="Dalelpur">Dalelpur</option>
+              <option value="Danda Shah Bilawal">Danda Shah Bilawal</option>
+              <option value="Danyor">Danyor</option>
+              <option value="Darapur">Darapur</option>
+              <option value="Darlian Jattan">Darlian Jattan</option>
+              <option value="Darman">Darman</option>
+              <option value="Daroghawala">Daroghawala</option>
+              <option value="Darro">Darro</option>
+              <option value="Darya Khan">Darya Khan</option>
+              <option value="Daska">Daska</option>
+              <option value="Data Sahib">Data Sahib</option>
+              <option value="Daulat Nagar">Daulat Nagar</option>
+              <option value="Dehli Gate">Dehli Gate</option>
+              <option value="Depalpur">Depalpur</option>
+              <option value="Depalpur Agri">Depalpur Agri</option>
+              <option value="Depalpur-2">Depalpur-2</option>
+              <option value="Dera Bakha">Dera Bakha</option>
+              <option value="Dhamthal">Dhamthal</option>
+              <option value="Dhanote">Dhanote</option>
+              <option value="Dharyala Jalap">Dharyala Jalap</option>
+              <option value="Dheri Hasan Abad">Dheri Hasan Abad</option>
+              <option value="Dhirkot">Dhirkot</option>
+              <option value="Dhok Amb">Dhok Amb</option>
+              <option value="Dhoke Ratta">Dhoke Ratta</option>
+              <option value="Dhori Adda">Dhori Adda</option>
+              <option value="Dhudhi Wala">Dhudhi Wala</option>
+              <option value="Dhudial">Dhudial</option>
+              <option value="Dhurnal">Dhurnal</option>
+              <option value="Digri">Digri</option>
+              <option value="Dijkot">Dijkot</option>
+              <option value="Dina">Dina</option>
+              <option value="Dinga">Dinga</option>
+              <option value="Dir">Dir</option>
+              <option value="Domail">Domail</option>
+              <option value="Domail (Bannu)">Domail (Bannu)</option>
+              <option value="Drosh">Drosh</option>
+              <option value="Duki">Duki</option>
+              <option value="Dunga Bunga">Dunga Bunga</option>
+              <option value="Dunyapur">Dunyapur</option>
+              <option value="Emit">Emit</option>
+              <option value="F.R D.I. Khan">F.R D.I. Khan</option>
+              <option value="Factory Area">Factory Area</option>
+              <option value="Faqeerabad">Faqeerabad</option>
+              <option value="Faqir Wali">Faqir Wali</option>
+              <option value="Farooq Pura">Farooq Pura</option>
+              <option value="Farooqa (Agri)">Farooqa (Agri)</option>
+              <option value="Farooqabad">Farooqabad</option>
+              <option value="Fateh Jang">Fateh Jang</option>
+              <option value="Fateh Jang-2">Fateh Jang-2</option>
+              <option value="Fateh Pur">Fateh Pur</option>
+              <option value="Fateh Pur Rural">Fateh Pur Rural</option>
+              <option value="Fazilpur">Fazilpur</option>
+              <option value="Feroze Wattwan">Feroze Wattwan</option>
+              <option value="Ferozewala">Ferozewala</option>
+              <option value="Firdous Market">Firdous Market</option>
+              <option value="Fort Abas">Fort Abas</option>
+              <option value="Gaggo Mandi">Gaggo Mandi</option>
+              <option value="Gahkuch">Gahkuch</option>
+              <option value="Gamba">Gamba</option>
+              <option value="Garh More">Garh More</option>
+              <option value="Garha More">Garha More</option>
+              <option value="Garhi Dupatta">Garhi Dupatta</option>
+              <option value="Garhi Habibullah">Garhi Habibullah</option>
+              <option value="Garhi kapura">Garhi kapura</option>
+              <option value="Ghakhar Mandi">Ghakhar Mandi</option>
+              <option value="Gharibabad">Gharibabad</option>
+              <option value="Gharo">Gharo</option>
+              <option value="Ghawari">Ghawari</option>
+              <option value="Ghazi">Ghazi</option>
+              <option value="Ghazi Abad">Ghazi Abad</option>
+              <option value="Ghotaro">Ghotaro</option>
+              <option value="Ghotki">Ghotki</option>
+              <option value="Ghulam Jan Market">Ghulam Jan Market</option>
+              <option value="Ghulam Muhammad Abad">Ghulam Muhammad Abad</option>
+              <option value="Ghulam Muhammad Wala">Ghulam Muhammad Wala</option>
+              <option value="Ghurki Hospital">Ghurki Hospital</option>
+              <option value="Gilgit">Gilgit</option>
+              <option value="Gojra">Gojra</option>
+              <option value="Gojra-Mandi">Gojra-Mandi</option>
+              <option value="Gondal">Gondal</option>
+              <option value="Green Town">Green Town</option>
+              <option value="Gujranwala-1">Gujranwala-1</option>
+              <option value="Gujranwala-2">Gujranwala-2</option>
+              <option value="Gujrat-1">Gujrat-1</option>
+              <option value="Gulmit">Gulmit</option>
+              <option value="Gulshan Iqbal">Gulshan Iqbal</option>
+              <option value="Gulyana">Gulyana</option>
+              <option value="Gupis">Gupis</option>
+              <option value="Gwadar">Gwadar</option>
+              <option value="Habibabad">Habibabad</option>
+              <option value="Hafizabad">Hafizabad</option>
+              <option value="Haider Chowk">Haider Chowk</option>
+              <option value="Haji Camp">Haji Camp</option>
+              <option value="Hajira">Hajira</option>
+              <option value="Hajji Chand">Hajji Chand</option>
+              <option value="Hall Road">Hall Road</option>
+              <option value="Harappa">Harappa</option>
+              <option value="Hardo Muhammad Ky">Hardo Muhammad Ky</option>
+              <option value="Hari chand">Hari chand</option>
+              <option value="Harighel">Harighel</option>
+              <option value="Haripur">Haripur</option>
+              <option value="Hariya">Hariya</option>
+              <option value="Harnoli">Harnoli</option>
+              <option value="Haroonabad-1">Haroonabad-1</option>
+              <option value="Haroonabad-2">Haroonabad-2</option>
+              <option value="Harya wala">Harya wala</option>
+              <option value="Hasilpur">Hasilpur</option>
+              <option value="Hasilpur-2">Hasilpur-2</option>
+              <option value="Hassan Abdal">Hassan Abdal</option>
+              <option value="Hassan Abdal(Sultanpur)">Hassan Abdal(Sultanpur)</option>
+              <option value="Hathi Wind">Hathi Wind</option>
+              <option value="Hattian Bala">Hattian Bala</option>
+              <option value="Haveli">Haveli</option>
+              <option value="Haveli Bahadur Shah">Haveli Bahadur Shah</option>
+              <option value="Haveli Lakha">Haveli Lakha</option>
+              <option value="Havelian">Havelian</option>
+              <option value="Hazro">Hazro</option>
+              <option value="Head Faqirian">Head Faqirian</option>
+              <option value="Head office Branch">Head office Branch</option>
+              <option value="Hub">Hub</option>
+              <option value="Hujjan">Hujjan</option>
+              <option value="Hujra Shah Muqeem">Hujra Shah Muqeem</option>
+              <option value="Hujra Shah Muqeem-2">Hujra Shah Muqeem-2</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Ikhlas">Ikhlas</option>
+              <option value="Inayat Kalay">Inayat Kalay</option>
+              <option value="Iqbal Abad">Iqbal Abad</option>
+              <option value="Isa Khel">Isa Khel</option>
+              <option value="Islam Nagar">Islam Nagar</option>
+              <option value="Islamabad-1">Islamabad-1</option>
+              <option value="Islamabad-2 (Golra)">Islamabad-2 (Golra)</option>
+              <option value="Jacob Abad">Jacob Abad</option>
+              <option value="Jaffar">Jaffar</option>
+              <option value="Jaglot">Jaglot</option>
+              <option value="Jahan Khan Agri">Jahan Khan Agri</option>
+              <option value="Jahanian">Jahanian</option>
+              <option value="Jajjal">Jajjal</option>
+              <option value="Jalal Pur Pir Wala">Jalal Pur Pir Wala</option>
+              <option value="Jalalpur Jattan">Jalalpur Jattan</option>
+              <option value="Jamke Cheema">Jamke Cheema</option>
+              <option value="Jampur-1">Jampur-1</option>
+              <option value="Jampur-2">Jampur-2</option>
+              <option value="Jamrud">Jamrud</option>
+              <option value="Jand-1">Jand-1</option>
+              <option value="Jand-2">Jand-2</option>
+              <option value="Jaranwala">Jaranwala</option>
+              <option value="Jati">Jati</option>
+              <option value="Jatlan">Jatlan</option>
+              <option value="Jatoi">Jatoi</option>
+              <option value="Jattatar">Jattatar</option>
+              <option value="Jauharabad">Jauharabad</option>
+              <option value="Jehangira">Jehangira</option>
+              <option value="Jhal Jaranwala">Jhal Jaranwala</option>
+              <option value="Jhang Bahtar">Jhang Bahtar</option>
+              <option value="Jhang Road(FSD)">Jhang Road(FSD)</option>
+              <option value="Jhang Saddar">Jhang Saddar</option>
+              <option value="Jhang Village">Jhang Village</option>
+              <option value="Jhang city">Jhang city</option>
+              <option value="Jhang-1(Bhakkar Road)">Jhang-1(Bhakkar Road)</option>
+              <option value="Jhang-2(Satellite town)">Jhang-2(Satellite town)</option>
+              <option value="Jhari Kas">Jhari Kas</option>
+              <option value="Jhatla / Chinji">Jhatla / Chinji</option>
+              <option value="Jhatta Hathial">Jhatta Hathial</option>
+              <option value="Jhawarian">Jhawarian</option>
+              <option value="Jhelum">Jhelum</option>
+              <option value="Jhelum-2">Jhelum-2</option>
+              <option value="Jhugian Nagra">Jhugian Nagra</option>
+              <option value="Jodia Bazar">Jodia Bazar</option>
+              <option value="Jutial">Jutial</option>
+              <option value="Kabirwala">Kabirwala</option>
+              <option value="Kacha Khuh">Kacha Khuh</option>
+              <option value="Kadhar">Kadhar</option>
+              <option value="Kahna Nau">Kahna Nau</option>
+              <option value="Kahna Nau-2">Kahna Nau-2</option>
+              <option value="Kahror Pakka">Kahror Pakka</option>
+              <option value="Kahuta-1">Kahuta-1</option>
+              <option value="Kala Gujran">Kala Gujran</option>
+              <option value="Kala Shah Kaku">Kala Shah Kaku</option>
+              <option value="Kalabagh">Kalabagh</option>
+              <option value="Kalaske">Kalaske</option>
+              <option value="Kalaya">Kalaya</option>
+              <option value="Kallar Kahar">Kallar Kahar</option>
+              <option value="Kallur Kot">Kallur Kot</option>
+              <option value="Kamalia">Kamalia</option>
+              <option value="Kamalpur Musa">Kamalpur Musa</option>
+              <option value="Kamar Mushani">Kamar Mushani</option>
+              <option value="Kameer Wala">Kameer Wala</option>
+              <option value="Kamoke-1">Kamoke-1</option>
+              <option value="Kamoke-2">Kamoke-2</option>
+              <option value="Kamoke-Agri">Kamoke-Agri</option>
+              <option value="Kamra">Kamra</option>
+              <option value="Kanganpur">Kanganpur</option>
+              <option value="Kangniwala">Kangniwala</option>
+              <option value="Kareem Pura">Kareem Pura</option>
+              <option value="Karimabad">Karimabad</option>
+              <option value="Karor Lal Esan">Karor Lal Esan</option>
+              <option value="Karora">Karora</option>
+              <option value="Kartarpur">Kartarpur</option>
+              <option value="Karyala">Karyala</option>
+              <option value="Kassoki (Agri)">Kassoki (Agri)</option>
+              <option value="Kassowal">Kassowal</option>
+              <option value="Kasur-1">Kasur-1</option>
+              <option value="Kasur-2">Kasur-2</option>
+              <option value="Kasur-3">Kasur-3</option>
+              <option value="Kasur-4">Kasur-4</option>
+              <option value="Katlang">Katlang</option>
+              <option value="Kazmi Chowk">Kazmi Chowk</option>
+              <option value="Khai Gala">Khai Gala</option>
+              <option value="Khairpur Tamiwali">Khairpur Tamiwali</option>
+              <option value="Khairpur-1">Khairpur-1</option>
+              <option value="Khairpur-2">Khairpur-2</option>
+              <option value="Khan Pur (Agri)">Khan Pur (Agri)</option>
+              <option value="Khan Pur-1">Khan Pur-1</option>
+              <option value="Khanewal">Khanewal</option>
+              <option value="Khangarh">Khangarh</option>
+              <option value="Khanpur">Khanpur</option>
+              <option value="Khanpur Bagga Sher">Khanpur Bagga Sher</option>
+              <option value="Khanpur Road (Taxila)">Khanpur Road (Taxila)</option>
+              <option value="Khanpur-2">Khanpur-2</option>
+              <option value="Khanqah Sharif">Khanqah Sharif</option>
+              <option value="Khaplu">Khaplu</option>
+              <option value="Khar">Khar</option>
+              <option value="Kharian">Kharian</option>
+              <option value="Kharianwala">Kharianwala</option>
+              <option value="Khaur">Khaur</option>
+              <option value="Kheshgi">Kheshgi</option>
+              <option value="Khewra">Khewra</option>
+              <option value="Khiali bypass">Khiali bypass</option>
+              <option value="Khidar Wala (Agri)">Khidar Wala (Agri)</option>
+              <option value="Khudian">Khudian</option>
+              <option value="Khuiratta">Khuiratta</option>
+              <option value="Khunda">Khunda</option>
+              <option value="Khurian Wala">Khurian Wala</option>
+              <option value="Khushab">Khushab</option>
+              <option value="Khwazakhela">Khwazakhela</option>
+              <option value="Killa Saifullah">Killa Saifullah</option>
+              <option value="Kinjwani">Kinjwani</option>
+              <option value="Kohat">Kohat</option>
+              <option value="Kot Abdul Malik">Kot Abdul Malik</option>
+              <option value="Kot Abdul Malik-2">Kot Abdul Malik-2</option>
+              <option value="Kot Addu">Kot Addu</option>
+              <option value="Kot Chajji">Kot Chajji</option>
+              <option value="Kot Chandna">Kot Chandna</option>
+              <option value="Kot Chutta">Kot Chutta</option>
+              <option value="Kot Khawaja Saeed">Kot Khawaja Saeed</option>
+              <option value="Kot Mithan-Rural">Kot Mithan-Rural</option>
+              <option value="Kot Mithan-Urban">Kot Mithan-Urban</option>
+              <option value="Kot Momin">Kot Momin</option>
+              <option value="Kot Radha Kishan-1">Kot Radha Kishan-1</option>
+              <option value="Kot Radha Kishan-2">Kot Radha Kishan-2</option>
+              <option value="Kot Roshan Din">Kot Roshan Din</option>
+              <option value="Kot Samaba">Kot Samaba</option>
+              <option value="Kot Sarang">Kot Sarang</option>
+              <option value="Kot Sultan">Kot Sultan</option>
+              <option value="Kotha Kalan">Kotha Kalan</option>
+              <option value="Kotla Jam">Kotla Jam</option>
+              <option value="Kotla Mughlan">Kotla Mughlan</option>
+              <option value="Kotli">Kotli</option>
+              <option value="Kotli Peer Abdul Rehman">Kotli Peer Abdul Rehman</option>
+              <option value="Kundian">Kundian</option>
+              <option value="Kunjah">Kunjah</option>
+              <option value="Kunri">Kunri</option>
+              <option value="Kuthiala Sheikhan">Kuthiala Sheikhan</option>
+              <option value="Kuza Banda">Kuza Banda</option>
+              <option value="Lak Mor">Lak Mor</option>
+              <option value="Lakki Marwat">Lakki Marwat</option>
+              <option value="Lalamusa">Lalamusa</option>
+              <option value="Lalian">Lalian</option>
+              <option value="Landay">Landay</option>
+              <option value="Landhi Town">Landhi Town</option>
+              <option value="Landi Kotal-2">Landi Kotal-2</option>
+              <option value="Landi kotal">Landi kotal</option>
+              <option value="Lawa">Lawa</option>
+              <option value="Lawrencepur">Lawrencepur</option>
+              <option value="Layyah">Layyah</option>
+              <option value="Layyah-2">Layyah-2</option>
+              <option value="Leather">Leather</option>
+              <option value="Leepa">Leepa</option>
+              <option value="Liaqat Pur">Liaqat Pur</option>
+              <option value="Liaqat Pur Agri">Liaqat Pur Agri</option>
+              <option value="Lodhran">Lodhran</option>
+              <option value="Lodhran (Agri)">Lodhran (Agri)</option>
+              <option value="Loralai">Loralai</option>
+              <option value="Loralai-2">Loralai-2</option>
+              <option value="Lyari">Lyari</option>
+              <option value="Machiwal">Machiwal</option>
+              <option value="Macleod Ganj">Macleod Ganj</option>
+              <option value="Madhu Lal Hussain">Madhu Lal Hussain</option>
+              <option value="Madyan">Madyan</option>
+              <option value="Mahar Sharif">Mahar Sharif</option>
+              <option value="Maila">Maila</option>
+              <option value="Mailsi">Mailsi</option>
+              <option value="Makhdoom Rashid">Makhdoom Rashid</option>
+              <option value="Makkuana">Makkuana</option>
+              <option value="Malakwal">Malakwal</option>
+              <option value="Malhowali">Malhowali</option>
+              <option value="Malka Hans">Malka Hans</option>
+              <option value="Mamu Kanjan">Mamu Kanjan</option>
+              <option value="Mana Ahamadani">Mana Ahamadani</option>
+              <option value="Mana Wala">Mana Wala</option>
+              <option value="Manawan">Manawan</option>
+              <option value="Mandi Bahauddin">Mandi Bahauddin</option>
+              <option value="Mandi Bahauddin-2">Mandi Bahauddin-2</option>
+              <option value="Mandi Bahauddin-3">Mandi Bahauddin-3</option>
+              <option value="Mandi Faizabad">Mandi Faizabad</option>
+              <option value="Mandi Gundhab">Mandi Gundhab</option>
+              <option value="Mandi Usman Wala">Mandi Usman Wala</option>
+              <option value="Mang">Mang</option>
+              <option value="Manga Mandi">Manga Mandi</option>
+              <option value="Mangowal">Mangowal</option>
+              <option value="Mangwal">Mangwal</option>
+              <option value="Mankera">Mankera</option>
+              <option value="Mansehra-1">Mansehra-1</option>
+              <option value="Mansehra-2">Mansehra-2</option>
+              <option value="Mansehra-3">Mansehra-3</option>
+              <option value="Mardan">Mardan</option>
+              <option value="Mastung">Mastung</option>
+              <option value="Matli">Matli</option>
+              <option value="Maula Pur">Maula Pur</option>
+              <option value="Mehdi Abad">Mehdi Abad</option>
+              <option value="Mian Channu">Mian Channu</option>
+              <option value="Miani">Miani</option>
+              <option value="Miani (Kallar Kahar)">Miani (Kallar Kahar)</option>
+              <option value="Mianwali Bangla">Mianwali Bangla</option>
+              <option value="Mianwali-1">Mianwali-1</option>
+              <option value="Mianwali-2">Mianwali-2</option>
+              <option value="Midh Ranjha">Midh Ranjha</option>
+              <option value="Minchinabad">Minchinabad</option>
+              <option value="Minchinabad-2">Minchinabad-2</option>
+              <option value="Mingora">Mingora</option>
+              <option value="Minhala">Minhala</option>
+              <option value="Mirpur">Mirpur</option>
+              <option value="Mirpur Bathoro">Mirpur Bathoro</option>
+              <option value="Mirpur Khas">Mirpur Khas</option>
+              <option value="Mirpur Mathelo">Mirpur Mathelo</option>
+              <option value="Misrial">Misrial</option>
+              <option value="Mitha Tiwana">Mitha Tiwana</option>
+              <option value="Mithi">Mithi</option>
+              <option value="Mithial">Mithial</option>
+              <option value="Moazzam Abad">Moazzam Abad</option>
+              <option value="Mohsinwal">Mohsinwal</option>
+              <option value="Mooch">Mooch</option>
+              <option value="More Khunda">More Khunda</option>
+              <option value="More Khunda-2">More Khunda-2</option>
+              <option value="Mosa Khail">Mosa Khail</option>
+              <option value="Mouza Bagh">Mouza Bagh</option>
+              <option value="Muhammad Pur">Muhammad Pur</option>
+              <option value="Mulhal mughlan">Mulhal mughlan</option>
+              <option value="Mullan Mansoor">Mullan Mansoor</option>
+              <option value="Multan Chungi">Multan Chungi</option>
+              <option value="Multan Khurd">Multan Khurd</option>
+              <option value="Multan-1">Multan-1</option>
+              <option value="Multan-2">Multan-2</option>
+              <option value="Multan-3">Multan-3</option>
+              <option value="Mumtazabad">Mumtazabad</option>
+              <option value="Mureed Wala">Mureed Wala</option>
+              <option value="Muridke">Muridke</option>
+              <option value="Murree">Murree</option>
+              <option value="Murtazabad">Murtazabad</option>
+              <option value="Muslim Bagh">Muslim Bagh</option>
+              <option value="Mustafa Abad">Mustafa Abad</option>
+              <option value="Muzafarabad- Multan">Muzafarabad- Multan</option>
+              <option value="Muzaffarabad">Muzaffarabad</option>
+              <option value="Muzaffarabad-2">Muzaffarabad-2</option>
+              <option value="Muzaffargarh">Muzaffargarh</option>
+              <option value="Nagar">Nagar</option>
+              <option value="Nai Khanqah">Nai Khanqah</option>
+              <option value="Nain Sukh">Nain Sukh</option>
+              <option value="Nakyal">Nakyal</option>
+              <option value="Nankana Sahib">Nankana Sahib</option>
+              <option value="Nankana-2">Nankana-2</option>
+              <option value="Nara">Nara</option>
+              <option value="Narang Mandi">Narang Mandi</option>
+              <option value="Narowal">Narowal</option>
+              <option value="Naseerabad">Naseerabad</option>
+              <option value="Nathia Gali">Nathia Gali</option>
+              <option value="Nawabpur">Nawabpur</option>
+              <option value="Nawabpura">Nawabpura</option>
+              <option value="Nawagai">Nawagai</option>
+              <option value="Nawan Killi">Nawan Killi</option>
+              <option value="Naya Lahore">Naya Lahore</option>
+              <option value="New Karachi">New Karachi</option>
+              <option value="Nihang">Nihang</option>
+              <option value="Nishat Abad">Nishat Abad</option>
+              <option value="Nokhar">Nokhar</option>
+              <option value="Nomal">Nomal</option>
+              <option value="Noor Kot">Noor Kot</option>
+              <option value="Notak">Notak</option>
+              <option value="Nothia">Nothia</option>
+              <option value="Nowshera">Nowshera</option>
+              <option value="Nowshera Kalan">Nowshera Kalan</option>
+              <option value="Nowshera Virkan">Nowshera Virkan</option>
+              <option value="Nurpur naher">Nurpur naher</option>
+              <option value="Oghi">Oghi</option>
+              <option value="Okara">Okara</option>
+              <option value="Okara-2">Okara-2</option>
+              <option value="Okara-3">Okara-3</option>
+              <option value="Orangi Town">Orangi Town</option>
+              <option value="Oshikhandass">Oshikhandass</option>
+              <option value="Pabbi">Pabbi</option>
+              <option value="Paharh Pur">Paharh Pur</option>
+              <option value="Pai khel">Pai khel</option>
+              <option value="Painsra">Painsra</option>
+              <option value="Painsra (Agri)">Painsra (Agri)</option>
+              <option value="Paki Shah Mardan">Paki Shah Mardan</option>
+              <option value="Pakpattan">Pakpattan</option>
+              <option value="Pakpattan-2">Pakpattan-2</option>
+              <option value="Pallandri">Pallandri</option>
+              <option value="Paniola">Paniola</option>
+              <option value="Panjgrain">Panjgrain</option>
+              <option value="Pano Aqil">Pano Aqil</option>
+              <option value="Par Hoti">Par Hoti</option>
+              <option value="Parachinar">Parachinar</option>
+              <option value="Pariyal">Pariyal</option>
+              <option value="Pashut">Pashut</option>
+              <option value="Pasrur-1">Pasrur-1</option>
+              <option value="Pasrur-2">Pasrur-2</option>
+              <option value="Patikka">Patikka</option>
+              <option value="Pattoki-1">Pattoki-1</option>
+              <option value="Pattoki-2">Pattoki-2</option>
+              <option value="Peer Phulai">Peer Phulai</option>
+              <option value="Peoples Colony">Peoples Colony</option>
+              <option value="Perro Khail">Perro Khail</option>
+              <option value="Peshawar">Peshawar</option>
+              <option value="Phalia">Phalia</option>
+              <option value="Phalore">Phalore</option>
+              <option value="Phularwan">Phularwan</option>
+              <option value="Pichnand">Pichnand</option>
+              <option value="Pinanwal">Pinanwal</option>
+              <option value="Pind Bhagwal">Pind Bhagwal</option>
+              <option value="Pind Dadan Khan">Pind Dadan Khan</option>
+              <option value="Pindi Bhattian">Pindi Bhattian</option>
+              <option value="Pindi Saidpur">Pindi Saidpur</option>
+              <option value="Pindigheb">Pindigheb</option>
+              <option value="Piplan">Piplan</option>
+              <option value="Pir Mahal">Pir Mahal</option>
+              <option value="Pishin">Pishin</option>
+              <option value="Pul Wasal Chungi # 1">Pul Wasal Chungi # 1</option>
+              <option value="Punwa">Punwa</option>
+              <option value="Qaboola Sharif">Qaboola Sharif</option>
+              <option value="Qaddafi Chowk">Qaddafi Chowk</option>
+              <option value="Qadirpur Ran">Qadirpur Ran</option>
+              <option value="Qaida Abad">Qaida Abad</option>
+              <option value="Qambar Khail">Qambar Khail</option>
+              <option value="Qasba Gujrat">Qasba Gujrat</option>
+              <option value="Qasim Bela">Qasim Bela</option>
+              <option value="Qasim Pur (BCG Chowk)">Qasim Pur (BCG Chowk)</option>
+              <option value="Qazafi">Qazafi</option>
+              <option value="Qila Ahmed Abad">Qila Ahmed Abad</option>
+              <option value="Qila Didar Singh">Qila Didar Singh</option>
+              <option value="Quetta">Quetta</option>
+              <option value="Qutbal">Qutbal</option>
+              <option value="Rahgan">Rahgan</option>
+              <option value="Rahim Yar Khan">Rahim Yar Khan</option>
+              <option value="Rahim Yar Khan-2">Rahim Yar Khan-2</option>
+              <option value="Rahim Yar Khan-4">Rahim Yar Khan-4</option>
+              <option value="Rahwali Cantt">Rahwali Cantt</option>
+              <option value="Raiwind">Raiwind</option>
+              <option value="Raja Bazar">Raja Bazar</option>
+              <option value="Raja Jang">Raja Jang</option>
+              <option value="Raja Pur">Raja Pur</option>
+              <option value="Rajana">Rajana</option>
+              <option value="Rajanpur">Rajanpur</option>
+              <option value="Rajanpur-2">Rajanpur-2</option>
+              <option value="Rajjar">Rajjar</option>
+              <option value="Rana Town">Rana Town</option>
+              <option value="Rangeel Pur">Rangeel Pur</option>
+              <option value="Ranial">Ranial</option>
+              <option value="Ranipur">Ranipur</option>
+              <option value="Rasheed Abad">Rasheed Abad</option>
+              <option value="Rati Pindi">Rati Pindi</option>
+              <option value="Rawalakot">Rawalakot</option>
+              <option value="Raza Abad">Raza Abad</option>
+              <option value="Renala Khurd">Renala Khurd</option>
+              <option value="Risalpur">Risalpur</option>
+              <option value="Rodu Sultan">Rodu Sultan</option>
+              <option value="Rohilanwali">Rohilanwali</option>
+              <option value="Rohri">Rohri</option>
+              <option value="Sadar Cantt">Sadar Cantt</option>
+              <option value="Sadda">Sadda</option>
+              <option value="Saddar Town">Saddar Town</option>
+              <option value="Saddique Abad">Saddique Abad</option>
+              <option value="Sadhar">Sadhar</option>
+              <option value="Sadhar (Agri)">Sadhar (Agri)</option>
+              <option value="Sadhoke">Sadhoke</option>
+              <option value="Sadiq Abad-1">Sadiq Abad-1</option>
+              <option value="Sadiq Abad-2">Sadiq Abad-2</option>
+              <option value="Sadiqabad-3">Sadiqabad-3</option>
+              <option value="Safdar Abad">Safdar Abad</option>
+              <option value="Safi">Safi</option>
+              <option value="Saghar">Saghar</option>
+              <option value="Sahiwal (Distt Sargodha)">Sahiwal (Distt Sargodha)</option>
+              <option value="Sahiwal-1">Sahiwal-1</option>
+              <option value="Sahiwal-2">Sahiwal-2</option>
+              <option value="Salamatpura">Salamatpura</option>
+              <option value="Samahni">Samahni</option>
+              <option value="Samanabad">Samanabad</option>
+              <option value="Sambrial">Sambrial</option>
+              <option value="Samundri">Samundri</option>
+              <option value="Samundri Road(FSD)">Samundri Road(FSD)</option>
+              <option value="Sanawan">Sanawan</option>
+              <option value="Sanda">Sanda</option>
+              <option value="Sandhilianwali">Sandhilianwali</option>
+              <option value="Sanghoi">Sanghoi</option>
+              <option value="Sangla Hill">Sangla Hill</option>
+              <option value="Sarai Alamgir">Sarai Alamgir</option>
+              <option value="Sarai Sala">Sarai Sala</option>
+              <option value="Sardar Market">Sardar Market</option>
+              <option value="Sardheri">Sardheri</option>
+              <option value="Sargodha-1">Sargodha-1</option>
+              <option value="Sargodha-2">Sargodha-2</option>
+              <option value="Sargodha-3">Sargodha-3</option>
+              <option value="Sarsawa">Sarsawa</option>
+              <option value="Saryab Road">Saryab Road</option>
+              <option value="Sateen">Sateen</option>
+              <option value="Satellite Town">Satellite Town</option>
+              <option value="Satellite Town (Quetta)">Satellite Town (Quetta)</option>
+              <option value="Saudabad Malir">Saudabad Malir</option>
+              <option value="Sauwal">Sauwal</option>
+              <option value="Sehgal Abad">Sehgal Abad</option>
+              <option value="Sehnsa">Sehnsa</option>
+              <option value="Shabqadar">Shabqadar</option>
+              <option value="Shah Jamal">Shah Jamal</option>
+              <option value="Shah Kot">Shah Kot</option>
+              <option value="Shahdara">Shahdara</option>
+              <option value="Shahdara-2">Shahdara-2</option>
+              <option value="Shaher Sultan">Shaher Sultan</option>
+              <option value="Shahpur">Shahpur</option>
+              <option value="Shahpur-2">Shahpur-2</option>
+              <option value="Shakargarh">Shakargarh</option>
+              <option value="Sham Kot">Sham Kot</option>
+              <option value="Sharda">Sharda</option>
+              <option value="Sharif Pura">Sharif Pura</option>
+              <option value="Sharqpur">Sharqpur</option>
+              <option value="Sheikhupura">Sheikhupura</option>
+              <option value="Sher Shah">Sher Shah</option>
+              <option value="Sher Shah Colony">Sher Shah Colony</option>
+              <option value="Shergarh">Shergarh</option>
+              <option value="Shewa">Shewa</option>
+              <option value="Shigar">Shigar</option>
+              <option value="Shikyote">Shikyote</option>
+              <option value="Shinkiari">Shinkiari</option>
+              <option value="Shireen Jinnah">Shireen Jinnah</option>
+              <option value="Shorkot">Shorkot</option>
+              <option value="Shorkot Cantt">Shorkot Cantt</option>
+              <option value="Shuja Abad">Shuja Abad</option>
+              <option value="Sialkot">Sialkot</option>
+              <option value="Sialkot-2">Sialkot-2</option>
+              <option value="Sibi">Sibi</option>
+              <option value="Siddique Abad Phatak">Siddique Abad Phatak</option>
+              <option value="Sikander Pura">Sikander Pura</option>
+              <option value="Sillanwali">Sillanwali</option>
+              <option value="Sillanwali (Agri)">Sillanwali (Agri)</option>
+              <option value="Singul">Singul</option>
+              <option value="Skardu">Skardu</option>
+              <option value="Skardu-2">Skardu-2</option>
+              <option value="Sodiwal Samanabad">Sodiwal Samanabad</option>
+              <option value="Sujawal">Sujawal</option>
+              <option value="Sukkur-1">Sukkur-1</option>
+              <option value="Sukkur-2">Sukkur-2</option>
+              <option value="Susan Road">Susan Road</option>
+              <option value="Sust">Sust</option>
+              <option value="Swabi">Swabi</option>
+              <option value="Takht Bhai">Takht Bhai</option>
+              <option value="Talagang">Talagang</option>
+              <option value="Talagang-2">Talagang-2</option>
+              <option value="Talwandi">Talwandi</option>
+              <option value="Tamman">Tamman</option>
+              <option value="Tanda">Tanda</option>
+              <option value="Tandlianwala">Tandlianwala</option>
+              <option value="Tando Allah yar">Tando Allah yar</option>
+              <option value="Tando Jan Muhammad">Tando Jan Muhammad</option>
+              <option value="Tando Muhammad Khan">Tando Muhammad Khan</option>
+              <option value="Tangi">Tangi</option>
+              <option value="Tank-2">Tank-2</option>
+              <option value="Tarar Khal">Tarar Khal</option>
+              <option value="Tarinda Saway Khan">Tarinda Saway Khan</option>
+              <option value="Tariq Abad">Tariq Abad</option>
+              <option value="Taunsa Sharif">Taunsa Sharif</option>
+              <option value="Taunsa Sharif-2">Taunsa Sharif-2</option>
+              <option value="Taxila">Taxila</option>
+              <option value="Taxila-2">Taxila-2</option>
+              <option value="Tench Bhata">Tench Bhata</option>
+              <option value="Thagas">Thagas</option>
+              <option value="Thakot">Thakot</option>
+              <option value="Thana">Thana</option>
+              <option value="Thatha">Thatha</option>
+              <option value="Thatha Khalil">Thatha Khalil</option>
+              <option value="Theeng More-2">Theeng More-2</option>
+              <option value="Theing Mor">Theing Mor</option>
+              <option value="Thokar Niaz Baig">Thokar Niaz Baig</option>
+              <option value="Thol">Thol</option>
+              <option value="Thorar">Thorar</option>
+              <option value="Tibba Badar Sher">Tibba Badar Sher</option>
+              <option value="Tibba Sultan Pur">Tibba Sultan Pur</option>
+              <option value="Timergara">Timergara</option>
+              <option value="Toba Tek Singh">Toba Tek Singh</option>
+              <option value="Tobah">Tobah</option>
+              <option value="Topi">Topi</option>
+              <option value="Tordher">Tordher</option>
+              <option value="Toru">Toru</option>
+              <option value="Township">Township</option>
+              <option value="Trag">Trag</option>
+              <option value="Trati">Trati</option>
+              <option value="Trinda Sway Khan-2">Trinda Sway Khan-2</option>
+              <option value="Tulamba">Tulamba</option>
+              <option value="Uch Sharif">Uch Sharif</option>
+              <option value="Uch Sharif-2">Uch Sharif-2</option>
+              <option value="Ugoke">Ugoke</option>
+              <option value="Umerkot">Umerkot</option>
+              <option value="Uthal">Uthal</option>
+              <option value="Vehari">Vehari</option>
+              <option value="Vehari-2">Vehari-2</option>
+              <option value="Walton">Walton</option>
+              <option value="Wan Bhachran (Agri)">Wan Bhachran (Agri)</option>
+              <option value="Wan Miana">Wan Miana</option>
+              <option value="Wanhar">Wanhar</option>
+              <option value="Warburton">Warburton</option>
+              <option value="Wassan pura">Wassan pura</option>
+              <option value="Wazirabad">Wazirabad</option>
+              <option value="Yaka Ghund">Yaka Ghund</option>
+              <option value="Yasin">Yasin</option>
+              <option value="Yateem Khana">Yateem Khana</option>
+              <option value="Yazman Mandi">Yazman Mandi</option>
+              <option value="Young Pur">Young Pur</option>
+              <option value="Zafar Abad">Zafar Abad</option>
+              <option value="Zafarwal">Zafarwal</option>
+              <option value="Zaida">Zaida</option>
+              <option value="Zakariya Town">Zakariya Town</option>
+              <option value="Zhob">Zhob</option>
+
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="branch-code">Branch Code</label>
+            <input type="number" id="branch-code" name="branch_code" required min="0" placeholder="Enter Branch Code"
+              readonly />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PERSONAL INFO -->
+      <div class="section">
+        <div class="section-title">Personal Information</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+              <option value="" disabled selected>Select Gender</option>
+              <option>F</option>
+              <option>M</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="age">Age</label>
+            <select id="age" name="age" required onchange="setAgeLevel()">
+              <option value="" disabled selected>Select Age</option>
+              {% for i in range(19, 61) %}
+              <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="age-level">Age Level</label>
+            <select id="age-level" name="age_level" required>
+              <option value="" disabled selected>Select Age Level</option>
+              <option value="Young">Young (19-29)</option>
+              <option value="Middle Age">Middle Age (30-45)</option>
+              <option value="Older">Older (46-Above)</option>
+            </select>
+          </div>
+
+          <script>
+            function setAgeLevel() {
+              const age = parseInt(document.getElementById("age").value);
+              const ageLevel = document.getElementById("age-level");
+
+              if (!isNaN(age)) {
+                if (age >= 19 && age <= 29) {
+                  ageLevel.value = "Young";
+                } else if (age >= 30 && age <= 45) {
+                  ageLevel.value = "Middle Age";
+                } else if (age >= 46) {
+                  ageLevel.value = "Older";
+                }
+              }
+            }
+          </script>
+
+          <div class="form-field">
+            <label for="education">Education</label>
+            <select id="education" name="education" required>
+              <option value="" disabled selected>Select Education</option>
+              <option>Illiterate</option>
+              <option>Primary</option>
+              <option>Middle</option>
+              <option>Matric</option>
+              <option>Intermediate</option>
+              <option>Bachelor</option>
+              <option>Masters</option>
+              <option>Mphil</option>
+              <option>Phd</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="marital-status">Marital Status</label>
+            <select id="marital-status" name="marital_status" required>
+              <option value="" disabled selected>Select Marital Status</option>
+              <option>Single</option>
+              <option>Married</option>
+              <option>Divorced</option>
+              <option>Widow</option>
+              <option>Widower</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="house-ownership">House Ownership</label>
+            <select id="house-ownership" name="house_ownership" required>
+              <option value="" disabled selected>Select House Ownership</option>
+              <option>Owned</option>
+              <option>Rented</option>
+              <option>Mortgage</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="section">
+        <div class="section-title">Family & Finance</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="total-family-members">Total Family Members</label>
+            <input type="number" id="total-family-members" name="total_family_members" min="1" max="10" required
+              placeholder="" oninput="validateFamilyMembers(this)" />
+          </div>
+
+          <div class="form-field">
+            <label for="earning-hands">No. of Earning Hands</label>
+            <input type="number" id="earning-hands" name="no_of_earning_hands" min="0" max="10" required placeholder=""
+              oninput="validateEarningHands(this)" />
+          </div>
+
+          <script>
+            function validateFamilyMembers(input) {
+              const value = parseInt(input.value, 10);
+              if (isNaN(value) || value < 1 || value > 10) {
+                input.value = '';
+                input.placeholder = "";
+              }
+
+              // Re-check earning hands when family members are updated
+              const earningInput = document.getElementById('earning-hands');
+              if (earningInput.value) {
+                validateEarningHands(earningInput);
+              }
+            }
+
+            function validateEarningHands(input) {
+              const earningValue = parseInt(input.value, 10);
+              const familyValue = parseInt(document.getElementById('total-family-members').value, 10);
+
+              if (isNaN(earningValue) || earningValue < 0 || earningValue > 10) {
+                input.value = '';
+                input.placeholder = "";
+              } else if (!isNaN(familyValue) && earningValue > familyValue) {
+                input.value = '';
+                input.placeholder = "Cannot exceed total family";
+              } else {
+                input.placeholder = "Must be ≤ total family";
+              }
+            }
+          </script>
+
+          <!-- <div class="form-field">
+            <label for="total-family-members">Total Family Members</label>
+            <input type="number" id="total-family-members" name="total_family_members" min="1" max="10" required
+              oninput="validateFamilyMembers(this)" />
+
+            <script>
+              function validateFamilyMembers(input) {
+                const value = parseInt(input.value, 10);
+                if (isNaN(value) || value < 1 || value > 10) {
+                  input.value = ''; // Clear invalid input immediately
+                }
+
+              }
+            </script>
+
+          </div>
+
+
+
+          <div class="form-field">
+            <label for="earning-hands">No. of Earning Hands</label>
+            <input type="number" id="earning-hands" name="no_of_earning_hands" min="0" max="10" required
+              oninput="validateEarningHands(this)" />
+            <script>
+              function validateEarningHands(input) {
+                const value = parseInt(input.value, 10);
+                if (isNaN(value) || value < 1 || value > 10) {
+                  input.value = '';
+                }
+              }
+            </script>
+          </div> -->
+          <div class="form-field">
+            <label for="source-of-income">Source of Income</label>
+            <select id="source-of-income" name="source_of_income" required>
+              <option value="" disabled selected>Select Source of Income</option>
+              <option>All</option>
+              <option>Both</option>
+              <option>Business</option>
+              <option>Employment</option>
+              <option>Agriculture</option>
+              <option>Labour</option>
+
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="income">Household Income</label>
+            <input type="text" id="income" name="income" required
+              oninput="formatAndValidateIncome(this); calculateSaving();" />
+          </div>
+
+          <div class="form-field">
+            <label for="expenses">Total Expenses</label>
+            <input type="text" id="expenses" name="expenses" required
+              oninput="formatNumber(this); calculateSaving();" />
+          </div>
+
+          <div class="form-field">
+            <label for="saving-amount">Saving Amount</label>
+            <input type="text" id="saving-amount" name="saving_amount" readonly />
+          </div>
+
+          <div class="form-field">
+            <label for="monthly-saving">Monthly Saving Type</label>
+            <select id="monthly-saving" name="monthly_saving" required onchange="validateSavingType()">
+              <option value="" disabled selected>Select Monthly Saving Type</option>
+              <option value="At_home">At_home</option>
+              <option value="Committee">Committee</option>
+              <option value="Bank_saving">Bank_saving</option>
+              <option value="No_saving">No_saving</option>
+            </select>
+          </div>
+
+          <script>
+            function formatNumber(input) {
+              const raw = input.value.replace(/,/g, '').replace(/\D/g, '');
+              input.value = raw === '' ? '' : Number(raw).toLocaleString('en-US');
+            }
+
+            function formatAndValidateIncome(input) {
+              const raw = input.value.replace(/,/g, '').replace(/\D/g, '');
+              const value = parseInt(raw, 10);
+              input.setCustomValidity(""); // Reset validation
+              input.reportValidity();
+              input.value = raw ? Number(raw).toLocaleString('en-US') : '';
+            }
+
+            function calculateSaving() {
+              const incomeRaw = document.getElementById("income").value.replace(/,/g, '');
+              const expensesRaw = document.getElementById("expenses").value.replace(/,/g, '');
+              const income = parseFloat(incomeRaw) || 0;
+              const expenses = parseFloat(expensesRaw) || 0;
+              const saving = income - expenses;
+              const savingAmount = saving >= 0 ? saving : 0;
+              document.getElementById("saving-amount").value = savingAmount.toLocaleString('en-US');
+
+              // Revalidate monthly saving type
+              validateSavingType();
+            }
+
+            function validateSavingType() {
+              const savingRaw = document.getElementById("saving-amount").value.replace(/,/g, '');
+              const saving = parseFloat(savingRaw) || 0;
+              const select = document.getElementById("monthly-saving");
+
+              if (saving > 0 && select.value === "No_saving") {
+                select.value = ""; // Reset selection
+                select.setCustomValidity("Cannot select 'No_saving' when saving amount is greater than 0");
+                select.reportValidity();
+              } else {
+                select.setCustomValidity(""); // Clear any previous error
+              }
+            }
+          </script>
+
+          <!-- <div class="form-field">
+            <label for="income">Household Income</label>
+            <input type="text" id="income" name="income" required
+              oninput="formatAndValidateIncome(this); calculateSaving();" />
+          </div>
+
+          <div class="form-field">
+            <label for="expenses">Total Expenses</label>
+            <input type="text" id="expenses" name="expenses" required
+              oninput="formatNumber(this); calculateSaving();" />
+          </div>
+
+          <div class="form-field">
+            <label for="saving-amount">Saving Amount</label>
+            <input type="text" id="saving-amount" name="saving_amount" readonly />
+          </div>
+
+          <script>
+            function formatNumber(input) {
+              const raw = input.value.replace(/,/g, '').replace(/\D/g, '');
+              if (raw === '') {
+                input.value = '';
+                return;
+              }
+              input.value = Number(raw).toLocaleString('en-US');
+            }
+
+            function formatAndValidateIncome(input) {
+              const raw = input.value.replace(/,/g, '').replace(/\D/g, '');
+              const value = parseInt(raw, 10);
+              if (isNaN(value) || value < 11000 || value > 400000) {
+                input.setCustomValidity("");
+              } else {
+                input.setCustomValidity("");
+              }
+              input.reportValidity();
+              input.value = raw ? Number(raw).toLocaleString('en-US') : '';
+            }
+
+            function calculateSaving() {
+              const incomeRaw = document.getElementById("income").value.replace(/,/g, '');
+              const expensesRaw = document.getElementById("expenses").value.replace(/,/g, '');
+              const income = parseFloat(incomeRaw) || 0;
+              const expenses = parseFloat(expensesRaw) || 0;
+              const saving = income - expenses;
+              document.getElementById("saving-amount").value = saving >= 0
+                ? saving.toLocaleString('en-US')
+                : '0';
+            }
+          </script> -->
+
+
+
+          <!-- 
+          <div class="form-field">
+            <label for="income">Income</label>
+            <input type="number" id="income" name="income" required
+              oninput="validateIncome(this); calculateSaving();" />
+          </div>
+
+          <div class="form-field">
+            <label for="expenses">Expenses</label>
+            <input type="number" id="expenses" name="expenses" step="0.01" min="0" required
+              oninput="calculateSaving();" />
+          </div>
+
+          <div class="form-field">
+            <label for="saving-amount">Saving Amount</label>
+            <input type="number" id="saving-amount" name="saving_amount" min="0" readonly />
+          </div>
+
+          <script>
+            function validateIncome(input) {
+              const value = parseInt(input.value, 10); // use base 10
+              if (isNaN(value) || value > 11000 || value < 400000) {
+                input.setCustomValidity("");
+                input.reportValidity();
+              } else {
+                input.setCustomValidity(""); // Clear validation message
+              }
+            }
+
+            function calculateSaving() {
+              const income = parseFloat(document.getElementById("income").value) || 0;
+              const expenses = parseFloat(document.getElementById("expenses").value) || 0;
+              const saving = income - expenses;
+              document.getElementById("saving-amount").value = saving >= 0 ? saving.toFixed() : 0;
+            }
+          </script> -->
+
+
+          <!-- <div class="form-field">
+            <label for="income">Income</label>
+            <input type="number" id="income" name="income" required oninput="validateIncome(this)" />
+
+            <script>
+              function validateIncome(input) {
+                const value = parseInt(input.value, 1);
+                if (isNaN(value) || value < 11000 || value > 400000) {
+                  input.setCustomValidity("");
+                  input.reportValidity();
+                } else {
+                  input.setCustomValidity(""); // Clears the warning if valid
+                }
+              }
+            </script>
+
+
+
+          </div>
+          <div class="form-field">
+            <label for="expenses">Expenses</label>
+            <input type="number" id="expenses" name="expenses" step="0.01" min="0" required />
+          </div> -->
+          <!-- <div class="form-field">
+            <label for="monthly-saving">Monthly Saving Type</label>
+            <select id="monthly-saving" name="monthly_saving" required>
+              <option value="" disabled selected>Select Monthly Saving Type</option>
+              <option>At_home</option>
+              <option>Committee</option>
+              <option>Bank_saving</option>
+              <option>No_saving</option>
+            </select>
+          </div> -->
+          <!-- <div class="form-field">
+            <label for="saving-amount">Saving Amount</label>
+            <input type="number" id="saving-amount" name="saving_amount" min="0" step="0.01" />
+          </div> -->
+          <div class="form-field">
+            <label for="who-will-earn">Who Will Earn</label>
+            <select id="who-will-earn" name="who_will_earn" required>
+              <option value="" disabled selected>Select Earner</option>
+
+              <option>Self</option>
+              <option>Spouse</option>
+              <option>Father</option>
+              <option>Mother</option>
+              <option>Brother</option>
+              <option>Son</option>
+              <option>Daughter</option>
+              <option>Father in Law</option>
+              <option>Son in Law</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SOCIAL -->
+        <div class="section">
+          <div class="section-title">Social & Earnings</div>
+          <div class="form-group">
+            <div class="form-field">
+              <label for="social-behavior">Social Behavior</label>
+              <select id="social-behavior" name="social_behavior" required>
+                <option value="" disabled selected>Select Social Behavior</option>
+                <option>Good</option>
+                <option>Very_good</option>
+                <option>Bad</option>
+                <option>Very_bad</option>
+
+              </select>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- LOAN DETAILS -->
+      <div>
+        <div class="section">
+          <div class="section-title">Loan Details</div>
+          <div class="form-group">
+
+            <!-- Loan Amount -->
+            <div class="form-field">
+              <label for="loan-amount">Loan Amount</label>
+              <input type="text" id="loan-amount" name="loan_amount" required
+                oninput="formatNumber(this); calculateInstallment()" />
+            </div>
+
+            <!-- Installment Months -->
+            <div class="form-field">
+              <label for="inst-months">Installment Months</label>
+              <select id="inst-months" name="inst_months" required onchange="calculateInstallment()">
+                <option value="" disabled selected>Select Installment Months</option>
+                <option>12</option>
+                <option>21</option>
+                <option>24</option>
+                <option>30</option>
+                <option>36</option>
+                <option>42</option>
+                <option>48</option>
+                <option>54</option>
+                <option>60</option>
+              </select>
+            </div>
+
+            <!-- Installment Amount -->
+            <div class="form-field">
+              <label for="inst-amnt">Installment Amount</label>
+              <input type="text" id="inst-amnt" name="inst_amnt" readonly />
+            </div>
+
+          </div>
+        </div>
+
+        <script>
+          function formatNumber(input) {
+            let value = input.value.replace(/,/g, '').replace(/\D/g, '');
+            if (value === '') {
+              input.value = '';
+              return;
+            }
+            input.value = Number(value).toLocaleString('en-US');
+          }
+
+          function calculateInstallment() {
+            const loanInput = document.getElementById("loan-amount").value.replace(/,/g, '');
+            const months = parseInt(document.getElementById("inst-months").value);
+            const installmentInput = document.getElementById("inst-amnt");
+
+            if (!loanInput || isNaN(months)) {
+              installmentInput.value = '';
+              return;
+            }
+
+            const loanAmount = parseFloat(loanInput);
+            const annualTaxRate = 0.0449;
+            const totalTax = loanAmount * annualTaxRate * (months / 12); // tax for selected period
+            const totalPayable = loanAmount + totalTax;
+            const monthlyInstallment = totalPayable / months;
+
+            // Correct way: format the number (not a string)
+            installmentInput.value = Number(monthlyInstallment.toFixed(0)).toLocaleString('en-US');
+          }
+        </script>
+
+
+      </div>
+      <!-- <div class="section">
+        <div class="section-title">Loan Details</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="loan-amount">Loan Amount</label>
+            <input type="text" id="loan-amount" name="loan_amount" required
+              oninput="formatNumber(this); calculateInstallment()" placeholder="" />
+          </div>
+
+          <div class="form-field">
+            <label for="inst-months">Installment Months</label>
+            <select id="inst-months" name="inst_months" required onchange="calculateInstallment()">
+              <option value="" disabled selected>Select Installment Months</option>
+              <option>12</option>
+              <option>21</option>
+              <option>24</option>
+              <option>30</option>
+              <option>36</option>
+              <option>42</option>
+              <option>48</option>
+              <option>54</option>
+              <option>60</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="inst-amnt">Installment Amount</label>
+            <input type="number" id="inst-amnt" name="inst_amnt" min="0" readonly placeholder="" />
+          </div>
+
+          <script>
+            function formatNumber(input) {
+              let value = input.value.replace(/,/g, '').replace(/\D/g, '');
+              if (value === '') {
+                input.value = '';
+                return;
+              }
+              input.value = Number(value).toLocaleString('en-US');
+            }
+
+            function calculateInstallment() {
+              const loanInput = document.getElementById("loan-amount").value.replace(/,/g, '');
+              const months = parseInt(document.getElementById("inst-months").value);
+              const installmentInput = document.getElementById("inst-amnt");
+
+              if (!loanInput || isNaN(months)) {
+                installmentInput.value = '';
+                return;
+              }
+
+              const loanAmount = parseFloat(loanInput);
+              const annualTaxRate = 0.0449;
+              const totalTax = loanAmount * annualTaxRate * (months / 12); // flat tax for period
+              const totalPayable = loanAmount + totalTax;
+              const monthlyInstallment = totalPayable / months;
+
+              installmentInput.value = monthlyInstallment.toFixed();
+            }
+          </script>
+
+        </div> -->
+      <!-- <div class="form-field">
+
+            <label for="loan-amount">Loan Amount</label>
+            <input type="text" id="loan-amount" name="loan_amount" required oninput="formatNumber(this)" />
+          </div>
+
+          <script>
+            function formatNumber(input) {
+              // Remove non-digit characters
+              let value = input.value.replace(/,/g, '').replace(/\D/g, '');
+
+              if (value === '') {
+                input.value = '';
+                return;
+              }
+
+              // Convert to number and format with commas
+              input.value = Number(value).toLocaleString('en-US');
+            }
+          </script>
+
+          <div class="form-field">
+            <label for="inst-months">Installment Months</label>
+            <select id="inst-months" name="inst_months" required>
+              <option value="" disabled selected>Select Installment Months</option>
+              <option>12</option>
+              <option>21</option>
+              <option>24</option>
+              <option>30</option>
+              <option>36</option>
+              <option>42</option>
+              <option>48</option>
+              <option>54</option>
+              <option>60</option>
+
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="inst-amnt">Installment Amount</label>
+            <input type="number" id="inst-amnt" name="inst_amnt" min="0" required />
+          </div>
+        </div>
+      </div> -->
+
+      <div class="form-field">
+        <label for="education">Activity</label>
+        <select id="activity" name="activity" required>
+          <option value="" disabled selected></option>
+          <option>Addition</option>
+          <option>New Construction</option>
+          <option>Renovation / Up-gradation</option>
+        </select>
+      </div>
+      <button type="submit">Submit Application</button>
+      <script>
+
+        const regionData = {
+          "AJ&K": {
+            areas: {
+              "Abbaspur": {
+                "Tarar Khal": 50503,
+                "Baloch": 50504,
+                "Hajira": 50602,
+                "Abbaspur": 50603,
+                "Dhar Bazar": 50607,
+                "Haveli": 51001,
+                "Mumtazabad": 51002
+              },
+              "Jhelum Valley": {
+                "Garhi Dupatta": 50203,
+                "Bagh": 50401,
+                "Dhirkot": 50402,
+                "Harighel": 50403,
+                "Hattian Bala": 51701,
+                "Chakar": 51702,
+                "Leepa": 51703
+              },
+              "Kotli": {
+                "Kotli": 50901,
+                "Sehnsa": 50902,
+                "Khuiratta": 50903,
+                "Charhoi": 50904,
+                "Nakyal": 50905,
+                "Darlian Jattan": 50906,
+                "Sarsawa": 50907
+              },
+              "Muzaffarabad": {
+                "Muzaffarabad": 50201,
+                "Muzaffarabad-2": 50202,
+                "Athmuqam": 50204,
+                "Patikka": 50205,
+                "Chehla Bandi": 50206,
+                "Sharda": 50301
+              },
+              "Rawalakot": {
+                "Pallandri": 50501,
+                "Mang": 50502,
+                "Rawalakot": 50601,
+                "Thorar": 50604,
+                "Khai Gala": 50605
+              }
+            }
+          },
+
+          "Abbottabad": {
+            areas: {
+              "Abbottabad": {
+                "Abbottabad": 12403,
+                "Nathia Gali": 12401,
+                "Haripur": 12402,
+                "Havelian": 12404,
+                "Abbottabad-2": 12405,
+                "Sarai Sala": 12502
+              },
+              "Battagram": {
+                "Battagram": 12301,
+                "Kuza Banda": 12302,
+                "Allai": 12304,
+                "Thakot": 12303
+              },
+              "Mansehra": {
+                "Baffa": 12203,
+                "Shinkiari": 12208,
+                "Mansehra-1": 12201,
+                "Mansehra-2": 12202,
+                "Garhi Habibullah": 12204,
+                "Mansehra-3": 12205,
+                "Oghi": 12206,
+                "Balakot": 12207
+              },
+              "Shangla": {
+                "Besham": 11501,
+                "Karora": 11502,
+                "Alpuri": 11503
+              }
+            }
+          },
+          "Attock": {
+            areas: {
+              "Attock": {
+                "Attock-1": 2801,
+                "Hazro": 2802,
+                "Attock-4": 2803,
+                "Attock-2": 2805,
+                "Attock Agri": 2808,
+                "Gondal": 2809,
+                "Attock-5": 2818,
+                "Mullan Mansoor": 2819,
+                "Kamalpur Musa": 2820,
+                "Kamra": 2822,
+                "Lawrencepur": 2823
+              },
+              "Fateh Jang": {
+                "Fateh Jang": 2806,
+                "Jhang Bahtar": 2812,
+                "Khaur": 2816,
+                "Qutbal": 2817,
+                "Fateh Jang-2": 2824,
+                "Jaffar": 2825,
+                "Dhurnal": 2826,
+                "Haider Chowk": 2834,
+                "Jhang Village": 2836
+              },
+              "Jand": {
+                "Pindigheb": 2807,
+                "Jand-1": 2810,
+                "Domail": 2814,
+                "Nara": 2815,
+                "Khunda": 2827,
+                "Jand-2": 2828,
+                "Ikhlas": 2829,
+                "Malhowali": 2830,
+                "Kot Chajji": 2832,
+                "Mithial": 2833
+              },
+              "Taxila": {
+                "Hassan Abdal": 2804,
+                "Basti": 2811,
+                "Hassan Abdal(Sultanpur)": 2813,
+                "Jhari Kas": 2835,
+                "Taxila": 3112,
+                "Taxila-2": 3119,
+                "Thatha Khalil": 3141,
+                "Khanpur Road (Taxila)": 3143
+              }
+            }
+          },
+          "Bahawalnagar": {
+            areas: {
+              "Bahawalnagar": {
+                "Chak Madressa": 201,
+                "Bahawalnagar-1": 202,
+                "Minchinabad": 205,
+                "Dunga Bunga": 206,
+                "Bahawalnagar-2": 209,
+                "Macleod Ganj": 210,
+                "Bahawalnagar-3": 213,
+                "Minchinabad-2": 216
+              },
+              "Chishtian": {
+                "Chishtian-1": 203,
+                "Haroonabad-1": 204,
+                "Fort Abas": 207,
+                "Chishtian-2": 208,
+                "Faqir Wali": 211,
+                "Dahranwala": 212,
+                "Chishtian-3": 214,
+                "Haroonabad-2": 215,
+                "Chak 98 Fateh": 217,
+                "Mahar Sharif": 218
+              },
+              "Jahanian": {
+                "Jahanian": 2301,
+                "Khanewal": 2302,
+                "Kabirwala": 2305,
+                "Dunyapur": 2402,
+                "Tibba Sultan Pur": 2710
+              },
+              "Vehari": {
+                "Hasilpur": 105,
+                "Hasilpur-2": 116,
+                "Vehari": 2701,
+                "Mailsi": 2703,
+                "Vehari-2": 2706,
+                "Garha More": 2708
+              }
+            }
+          },
+          "Bahawalpur": {
+            areas: {
+              "Bahawalpur": {
+                "Bahawalpur-1": 101,
+                "Bahawalpur-2": 102,
+                "Yazman Mandi": 106,
+                "Khairpur Tamiwali": 110,
+                "Dera Bakha": 111,
+                "Bahawalpur Agriculture": 112,
+                "Tibba Badar Sher": 113
+              },
+              "Khanpur": {
+                "Liaqat Pur": 303,
+                "Khan Pur-1": 304,
+                "Kot Samaba": 307,
+                "Zahir Pir": 308,
+                "Khanpur-2": 309,
+                "Tarinda Saway Khan": 311,
+                "Liaqat Pur Agri": 312,
+                "Trinda Sway Khan-2": 314
+              },
+              "Lodhran(Bahawalpur2)": {
+                "Bahawalpur-3": 103,
+                "Ahmedpur Sharqia-1": 104,
+                "Khanqah Sharif": 107,
+                "Lodhran": 2401,
+                "Kahror Pakka": 2404,
+                "Lodhran (Agri)": 2405,
+                "Dhanote": 2406
+              },
+              "Rahim yar Khan": {
+                "Rahim Yar Khan": 301,
+                "Sadiq Abad-1": 302,
+                "Rahim Yar Khan-2": 305,
+                "Sadiq Abad-2": 306,
+                "Gulshan Iqbal": 310,
+                "Rahim Yar Khan-4": 313,
+                "Sadiqabad-3": 315,
+                "Ahmad Pur Lamma": 316,
+                "Iqbal Abad": 317
+              }
+            }
+          },
+          "Chakwal": {
+            areas: {
+              "Chakwal": {
+                "Saddique Abad": 2902,
+                "Balkasar": 2906,
+                "Dhudial": 2907,
+                "Mangwal": 2918,
+                "Dahab": 2919,
+                "Chak Bhoun/Balkassar": 2920,
+                "Bheen": 2922
+              },
+              "Kallar Kahar": {
+                "Chakwal": 2901,
+                "Choa Saidan Shah": 2903,
+                "Bhaun": 2905,
+                "Miani (Kallar Kahar)": 2909,
+                "Kallar Kahar": 2910,
+                "Karyala": 2915,
+                "Dalelpur": 2917
+              },
+              "Peer Phulai": {
+                "Khanpur": 2908,
+                "Sehgal Abad": 2911,
+                "Mulhal mughlan": 2921,
+                "Bhubhar": 2923,
+                "Peer Phulai": 2932,
+                "Nai Khanqah": 3013,
+                "Dhok Amb": 3136,
+                "Trati": 3137
+              },
+              "Pichnand": {
+                "Lawa": 2926,
+                "Pichnand": 2927,
+                "Multan Khurd": 2928,
+                "Tamman": 2929,
+                "Danda Shah Bilawal": 2930,
+                "Wanhar": 2931
+              },
+              "Talagang": {
+                "Talagang": 2904,
+                "Bhagwal": 2912,
+                "Talagang-2": 2913,
+                "Jhatla / Chinji": 2914,
+                "Saghar": 2924,
+                "Kot Sarang": 2925
+              }
+            }
+          },
+          "DG Khan": {
+            areas: {
+              "Alipur": {
+                "Uch Sharif": 108,
+                "Uch Sharif-2": 115,
+                "Ali Pur-1": 608,
+                "Ali Pur-2": 609,
+                "Jatoi": 610,
+                "Shaher Sultan": 611,
+                "Kot Mithan-Urban": 701,
+                "Kot Mithan-Rural": 706
+              },
+              "D.G Khan": {
+                "D.G Khan-1": 401,
+                "D.G Khan-2": 402,
+                "Kot Chutta": 404
+              },
+              "Muzaffargarh": {
+                "Khan Pur (Agri)": 407,
+                "Sanawan": 601,
+                "Muzaffargarh": 602,
+                "Baseera": 604,
+                "Khangarh": 605,
+                "Khanpur Bagga Sher": 606,
+                "Qasba Gujrat": 607,
+                "Chowk Karamdad Qureshi": 614,
+                "Rohilanwali": 615,
+                "Mana Ahamadani": 710
+              },
+              "Rajanpur": {
+                "Rajanpur": 702,
+                "Jampur-1": 703,
+                "Fazilpur": 704,
+                "Jampur-2": 705,
+                "Dajal": 707,
+                "Kotla Mughlan": 708,
+                "Muhammad Pur": 709,
+                "Rajanpur-2": 712
+              },
+              "Taunsa Sharif": {
+                "Taunsa Sharif": 406,
+                "Taunsa Sharif-2": 408,
+                "Barthi": 409
+              }
+            }
+          },
+          "Faisalabad": {
+            areas: {
+              "Chiniot": {
+                "Islam Nagar": 813,
+                "Nishat Abad": 816,
+                "Bawa Chak": 819,
+                "Chota Manawala": 825,
+                "Pindi Bhattian": 1302,
+                "Chiniot-2": 3602,
+                "Bhawana": 3603,
+                "Lalian": 3604
+              },
+              "Faisalabad": {
+                "Ghulam Muhammad Abad": 802,
+                "Raza Abad": 805,
+                "Jhang Road(FSD)": 807,
+                "SamundriÂ Road(FSD)": 808,
+                "Jaranwala": 809,
+                "Samanabad": 814,
+                "Makkuana": 823,
+                "Dhudhi Wala": 824,
+                "Jhal Jaranwala": 830,
+                "Babu Wala": 835,
+                "Chak 105": 838,
+                "Canal Road Faisalabad": 840
+              },
+              "Samundari": {
+                "Dijkot": 801,
+                "Samundri": 803,
+                "Tariq Abad": 804,
+                "Susan Road": 806,
+                "Tandlianwala": 811,
+                "Kinjwani": 812,
+                "Factory Area": 817,
+                "Khidar Wala (Agri)": 836
+              },
+              "Sangla Hill": {
+                "Chak Jhumra": 810,
+                "Khurian Wala": 815,
+                "Chak Jhumra (Agriculture)": 818,
+                "Barnala (Agri)": 837,
+                "Sangla Hill": 1901,
+                "Shah Kot": 1903,
+                "Safdar Abad": 2107
+              }
+            }
+          },
+          "FATA": {
+            areas: {
+              "Bajaur": {
+                "Khar": 8101,
+                "Inayat Kalay": 8102,
+                "Nawagai": 8103,
+                "Pashut": 8104,
+                "Rahgan": 8105,
+                "Qazafi": 8106,
+                "Siddique Abad Phatak": 8107
+              },
+              "Chitral": {
+                "Chitral": 11101,
+                "Drosh": 11102,
+                "Ayun": 11103,
+                "Booni": 11104,
+                "Dir": 11201
+              },
+              "Khyber": {
+                "Landi kotal": 8301,
+                "Jamrud": 8302,
+                "Bara": 8303,
+                "Landi Kotal-2": 8304,
+                "Bara-2": 8305,
+                "Qambar Khail": 8306,
+                "Perro Khail": 8307,
+                "Aka Khel": 8308
+              },
+              "Mohmand": {
+                "Mandi Gundhab": 8201,
+                "Yaka Ghund": 8202,
+                "Safi": 8203,
+                "Bakhshu Pull": 14205
+              },
+              "Peshawar": {
+                "Peshawar": 14201,
+                "Kareem Pura": 14202,
+                "Faqeerabad": 14203,
+                "Nothia": 14204
+              }
+            }
+          },
+          "Gilgit Baltistan": {
+            areas: {
+              "Danyor": {
+                "Danyor": 51102,
+                "Oshikhandass": 51104,
+                "Nomal": 51106,
+                "Astor": 51601,
+                "Thol": 51805,
+                "Chalt": 51901
+              },
+              "Diamer": {
+                "Chilas": 51501
+              },
+              "Ghanche": {
+                "Khaplu": 51301,
+                "Ghawari": 51302,
+                "Thagas": 51303,
+                "Daghoni": 51304
+              },
+              "Ghizer": {
+                "Gahkuch": 51201,
+                "Singul": 51202,
+                "Chatorkhand": 51203,
+                "Gupis": 51204,
+                "Yasin": 51205,
+                "Barkolti": 51206,
+                "Emit": 51207
+              },
+              "Gilgit": {
+                "Gilgit": 51101,
+                "Jutial": 51103,
+                "Jaglot": 51105,
+                "Baseen": 51107,
+                "Shikyote": 51108
+              },
+              "Hunza Nagar": {
+                "Ali Abad": 51801,
+                "Nagar": 51802,
+                "Karimabad": 51803,
+                "Murtazabad": 51804,
+                "Gulmit": 51806,
+                "Sust": 51807
+              },
+              "Skardu": {
+                "Skardu": 51401,
+                "Gamba": 51402,
+                "Shigar": 51403,
+                "Skardu-2": 51404,
+                "Mehdi Abad": 52101
+              }
+            }
+          },
+          "Gujranwala": {
+            areas: {
+              "Gujranwala": {
+                "Gujranwala-1": 1101,
+                "Gujranwala-2": 1102,
+                "Khiali bypass": 1106,
+                "Ghakhar Mandi": 1107,
+                "Peoples Colony": 1113,
+                "Wazirabad": 1114,
+                "Baghbanpura": 1117,
+                "Rahwali Cantt": 1119,
+                "Kangniwala": 1124
+              },
+              "Hafizabad": {
+                "Qila Didar Singh": 1109,
+                "Alam Chowk": 1112,
+                "Ali Pur Chatha": 1121,
+                "Kalaske": 1122,
+                "Nokhar": 1123,
+                "Hafizabad": 1301,
+                "Kassoki (Agri)": 1303,
+                "Chak Chatha (Agri)": 1304
+              },
+              "Narowal": {
+                "Narowal": 1501,
+                "Shakargarh": 1502,
+                "Zafarwal": 1503,
+                "Dhamthal": 1504,
+                "Qila Ahmed Abad": 1505,
+                "Darman": 1506,
+                "Noor Kot": 1508,
+                "Pasrur-1": 1603,
+                "Pasrur-2": 1606,
+                "Badiana": 1610,
+                "Mianwali Bangla": 1612
+              },
+              "Sialkot": {
+                "Daska": 1601,
+                "Sialkot": 1602,
+                "Jamke Cheema": 1605,
+                "Sambrial": 1607,
+                "Ugoke": 1608,
+                "Sialkot-2": 1609
+              }
+            }
+          },
+          "Jhang": {
+            areas: {
+              "Jhang": {
+                "Jhang city": 901,
+                "Jhang Saddar": 902,
+                "Jhang-1(Bhakkar Road)": 903,
+                "Jhang-2(Satellite town)": 904,
+                "Athara Hazari": 905,
+                "College Road Jhang": 907,
+                "Mouza Bagh": 910,
+                "Haveli Bahadur Shah": 911
+              },
+              "Rajana": {
+                "Mureed Wala": 827,
+                "Mamu Kanjan": 828,
+                "Rajana": 1001,
+                "Pir Mahal": 1004,
+                "Kamalia": 1005,
+                "Phalore": 1010
+              },
+              "Shorkot": {
+                "Shorkot": 906,
+                "Ahmadpur Sial": 908,
+                "Garh More": 909,
+                "Shorkot Cantt": 912,
+                "Rodu Sultan": 913,
+                "Sandhilianwali": 1008
+              },
+              "Toba Tek Singh": {
+                "Sadhar": 821,
+                "Painsra": 826,
+                "Kartarpur": 829,
+                "79 Adda (Agri)": 831,
+                "Sadhar (Agri)": 832,
+                "Painsra (Agri)": 833,
+                "Toba Tek Singh": 1002,
+                "Gojra": 1003,
+                "Naya Lahore": 1007,
+                "88 Phatak": 1012
+              }
+            }
+          },
+          "Jhelum": {
+            areas: {
+              "Gujrat": {
+                "Gujrat-1": 1201,
+                "Lalamusa": 1203,
+                "Jalalpur Jattan": 1204,
+                "Kunjah": 1205,
+                "Mangowal": 1206,
+                "Harya wala": 1210,
+                "Daulat Nagar": 1211,
+                "Tanda": 1216,
+                "Leather": 1413
+              },
+              "Jhelum": {
+                "Kharian": 1207,
+                "Sarai Alamgir": 1208,
+                "Gulyana": 1212,
+                "Jhelum": 3002,
+                "Dina": 3003,
+                "Jhelum-2": 3007,
+                "Kala Gujran": 3008,
+                "Sanghoi": 3012,
+                "Darapur": 3017
+              },
+              "Mandi Bahauddin": {
+                "Dinga": 1209,
+                "Mandi Bahauddin": 1404,
+                "Phalia": 1405,
+                "Kuthiala Sheikhan": 1406,
+                "Mandi Bahauddin-2": 1408,
+                "Gojra-Mandi": 1410,
+                "Kadhar": 1414,
+                "Mandi Bahauddin-3": 1415,
+                "Bosal": 1416,
+                "Bhoa Hassan": 1417
+              },
+              "Mirpur": {
+                "Mirpur": 5081,
+                "Dadyal": 5082,
+                "Chakswari": 5083,
+                "Jatlan": 5084,
+                "Bhimber": 50701,
+                "Barnala": 50702,
+                "Samahni": 50703
+              },
+              "Pind Dadan Khan": {
+                "Malakwal": 1402,
+                "Hariya": 1407,
+                "Sauwal": 3001,
+                "Pind Dadan Khan": 3005,
+                "Khewra": 3006,
+                "Jalalpur Sharif": 3009,
+                "Pinanwal": 3010,
+                "Tobah": 3011,
+                "Dharyala Jalap": 3015,
+                "Pindi Saidpur": 3016
+              }
+            }
+          },
+          "Karachi": {
+            areas: {
+              "Karachi": {
+                "Sher Shah": 35104,
+                "Orangi Town": 35107,
+                "Baldia Town": 35111,
+                "Qaddafi Chowk": 35114
+              },
+              "Korangi": {
+                "Akhtar Colony": 35101,
+                "Bhittai Colony": 35102,
+                "Shireen Jinnah": 35106,
+                "Saudabad Malir": 35108,
+                "Landhi Town": 35110
+              },
+              "Saddar": {
+                "New Karachi": 35103,
+                "Lyari": 35105,
+                "Saddar Town": 35109,
+                "Haji Camp": 35112,
+                "Jodia Bazar": 35113
+              },
+              "Sujawal": {
+                "Sujawal": 35201,
+                "Ghotaro": 35202,
+                "Mirpur Bathoro": 35203,
+                "Jati": 35204,
+                "Chouhar Jamali": 35205,
+                "Darro": 35206
+              },
+              "Thatha": {
+                "Tando Muhammad Khan": 33501,
+                "Badin": 33701,
+                "Matli": 33702,
+                "Thatha": 33801,
+                "Gharo": 33802
+              }
+            }
+          },
+          "Kasur": {
+            areas: {
+              "Kasur": {
+                "Raiwind": 1723,
+                "Kasur-1": 1806,
+                "Kasur-2": 1809,
+                "Mustafa Abad": 1810,
+                "Kasur-3": 1814,
+                "Raja Jang": 1815,
+                "Nurpur naher": 1820,
+                "Kasur-4": 1830
+              },
+              "Pattoki": {
+                "Manga Mandi": 1721,
+                "Changa Manga": 1803,
+                "Pattoki-1": 1804,
+                "Kot Radha Kishan-1": 1805,
+                "Habibabad": 1813,
+                "Kot Radha Kishan-2": 1816,
+                "Pattoki-2": 1817
+              },
+              "Theeng More": {
+                "Chunian": 1801,
+                "Theing Mor": 1807,
+                "Khudian": 1811,
+                "Kanganpur": 1812,
+                "Talwandi": 1818,
+                "Theeng More-2": 1819,
+                "Jajjal": 1821,
+                "Kotha Kalan": 1822,
+                "Landay": 1823,
+                "Sham Kot": 1824,
+                "Arzani Pur": 1825,
+                "Maula Pur": 1826,
+                "Rati Pindi": 1827,
+                "Mandi Usman Wala": 1828,
+                "Hardo Muhammad Ky": 1829,
+                "Bhard Wall": 1831,
+                "Sikander Pura": 1832,
+                "Hajji Chand": 6414
+              }
+            }
+          },
+          "Kohat": {
+            areas: {
+              "Bannu": {
+                "Bannu-1": 16101,
+                "Bannu-2": 16102,
+                "Domail (Bannu)": 16103,
+                "Baka Khel": 16104
+              },
+              "Kohat": {
+                "Kalaya": 8501,
+                "Babar Mela": 8502,
+                "Kohat": 15101,
+                "Bili Tang": 15104
+              },
+              "Kurrum": {
+                "Parachinar": 8401,
+                "Sadda": 8402,
+                "Bagan": 8403,
+                "Ghulam Jan Market": 8404,
+                "Sateen": 8405
+              },
+              "Tank": {
+                "Lakki Marwat": 16201,
+                "Tank": 17201,
+                "Tank-2": 17204,
+                "Jattatar": 17207
+              }
+            }
+          },
+          "Lahore": {
+            areas: {
+              "Madhulal": {
+                "Madhu Lal Hussain": 1707,
+                "Wassan pura": 1712,
+                "Daroghawala": 1713,
+                "Kot Khawaja Saeed": 1726,
+                "Badar Colony-2": 1731,
+                "Sadar Cantt": 1734,
+                "Sharif Pura": 1739
+              },
+              "Nishtar": {
+                "Firdous Market": 1714,
+                "Bedian Road": 1719,
+                "Kahna Nau": 1725,
+                "Kahna Nau-2": 1741,
+                "Bandian Wala Pul": 1746,
+                "Chanderay Road": 1747
+              },
+              "Salamatpura": {
+                "Walton": 1706,
+                "Kotli Peer Abdul Rehman": 1708,
+                "Badar Colony": 1715,
+                "Salamatpura": 1722,
+                "Nawabpura": 1736,
+                "Air Port": 1738,
+                "Manawan": 1749,
+                "Ghurki Hospital": 1750,
+                "Minhala": 1751
+              },
+              "Sodiwal": {
+                "Shah Jamal": 1703,
+                "Sodiwal Samanabad": 1710,
+                "Yateem Khana": 1735,
+                "Multan Chungi": 1740,
+                "Dehli Gate": 1748,
+                "Jhugian Nagra": 1755
+              },
+              "Thokar": {
+                "Head office Branch": 1701,
+                "Township": 1702,
+                "Green Town": 1709,
+                "Thokar Niaz Baig": 1720,
+                "Bagrian": 1728,
+                "Chung": 1729,
+                "Sher Shah Colony": 1744
+              }
+            }
+          },
+          "Mianwali": {
+            areas: {
+              "Bhakkar": {
+                "Karor Lal Esan": 502,
+                "Bhakkar-1": 3301,
+                "Bhakkar-2": 3302,
+                "Mankera": 3304,
+                "Darya Khan": 3305,
+                "Notak": 3307,
+                "Panjgrain": 3308,
+                "Jahan Khan Agri": 3309,
+                "Kotla Jam": 3310,
+                "Behal": 3311
+              },
+              "D.I. Khan": {
+                "F.R D.I. Khan": 17202,
+                "D.I. Khan-2": 17203,
+                "Zafar Abad": 17205,
+                "Paharh Pur": 17209
+              },
+              "Kala Bagh": {
+                "Kalabagh": 3511,
+                "Isa Khel": 3512,
+                "Kamar Mushani": 3513,
+                "Mooch": 3514,
+                "Kot Chandna": 3515,
+                "Trag": 3516,
+                "Pai khel": 3518,
+                "Paki Shah Mardan": 3519
+              },
+              "Mianwali": {
+                "Kallur Kot": 3306,
+                "Mianwali-1": 3501,
+                "Mianwali-2": 3502,
+                "Kundian": 3504,
+                "Mosa Khail": 3505,
+                "Piplan": 3506
+              },
+              "Quidabad": {
+                "Qaida Abad": 3402,
+                "Mitha Tiwana": 3405,
+                "Bijaar": 3406,
+                "Adhi kot": 3408,
+                "Chak No 8": 3409,
+                "Jabbi": 3410,
+                "Wan Bhachran (Agri)": 3507,
+                "Harnoli": 3520
+              }
+            }
+          },
+          "Multan": {
+            areas: {
+              "Layyah": {
+                "Layyah": 501,
+                "Fateh Pur": 503,
+                "Chowk Azam": 504,
+                "Kot Sultan": 505,
+                "Layyah-2": 506,
+                "Kazmi Chowk": 507,
+                "Lala Zaar": 508,
+                "Dhori Adda": 509,
+                "Chowk Azam Rural": 510,
+                "Fateh Pur Rural": 511
+              },
+              "Multan": {
+                "Multan-3": 2203,
+                "Shuja Abad": 2206,
+                "Zakariya Town": 2211,
+                "Pul Wasal Chungi # 1": 2213,
+                "Makhdoom Rashid": 2215,
+                "Bahawalpur Bypass": 2217,
+                "Qasim Pur (BCG Chowk)": 2218,
+                "Nawabpur": 2223
+              },
+              "Rangeel Pur": {
+                "Kot Addu": 603,
+                "Muzafarabad- Multan": 2207,
+                "Raja Pur": 2209,
+                "Ghulam Muhammad Wala": 2212,
+                "Jalal Pur Pir Wala": 2214,
+                "Rangeel Pur": 2219,
+                "Basti Khudadad": 2221,
+                "Qasim Bela": 2222
+              },
+              "Rasheed Abad": {
+                "Multan-2": 2201,
+                "Multan-1": 2202,
+                "Chungi # 14 Multan-5": 2204,
+                "Chowk Kumharan Wala": 2205,
+                "Qadirpur Ran": 2208,
+                "Rasheed Abad": 2210,
+                "Ali Town": 2216,
+                "Farooq Pura": 2220,
+                "Budhla Sant": 2224
+              }
+            }
+          },
+          "Nowshera": {
+            areas: {
+              "Mardan": {
+                "Mardan": 13101,
+                "Takht Bhai": 13102,
+                "Par Hoti": 13103,
+                "Katlang": 13104,
+                "Garhi kapura": 13105,
+                "Toru": 13106,
+                "Shergarh": 13108,
+                "Charsadda": 14101,
+                "Hari chand": 14102,
+                "Shabqadar": 14103,
+                "Tangi": 14104,
+                "Rajjar": 14105,
+                "Sardheri": 14106
+              },
+              "Mingora": {
+                "Timergara": 11301,
+                "Mingora": 11401,
+                "Barikot": 11402,
+                "Khwazakhela": 11403,
+                "Madyan": 11404,
+                "Thana": 11701,
+                "Chakdara": 11702
+              },
+              "Nowshera": {
+                "Nowshera Kalan": 14301,
+                "Akora Khattak": 14303,
+                "Jehangira": 14304,
+                "Pabbi": 14305,
+                "Risalpur": 14306,
+                "Akbarpura": 14309,
+                "Kheshgi": 14311
+              },
+              "Swabi": {
+                "Ghazi": 12501,
+                "Topi": 13201,
+                "Chota Lahore": 13202,
+                "Swabi": 13203,
+                "Shewa": 13204,
+                "Tordher": 13205,
+                "Zaida": 13206
+              }
+            }
+          },
+          "Quetta": {
+            areas: {
+              "Gwadar": {
+                "Gwadar": 48201
+              },
+              "Khuzdar": {
+                "Mastung": 47501
+              },
+              "Lasbela": {
+                "Bela": 4801,
+                "Uthal": 4802,
+                "Hub": 4803
+              },
+              "Loralai": {
+                "Loralai": 45701,
+                "Loralai-2": 45702,
+                "Killa Saifullah": 46101,
+                "Zhob": 46201,
+                "Muslim Bagh": 48102,
+                "Duki": 48801
+              },
+              "Nushki": {
+                "Satellite Town (Quetta)": 5103,
+                "Brewery Road": 45105
+              },
+              "Quetta": {
+                "Quetta": 5101,
+                "Nawan Killi": 5102,
+                "Saryab Road": 45106,
+                "Pishin": 45301
+              }
+            }
+          },
+          "Rawalpindi": {
+            areas: {
+              "Gareebabad": {
+                "Gharibabad": 3104,
+                "Adyala Road": 3121,
+                "Kahuta-1": 3122,
+                "Chaklala": 3127,
+                "Chowk Pindori": 3128,
+                "Jhatta Hathial": 3139,
+                "Sardar Market": 3140
+              },
+              "Islamabad": {
+                "Naseerabad": 3107,
+                "Murree": 3109,
+                "Islamabad-1": 3115,
+                "Islamabad-2 (Golra)": 3116,
+                "Bari Imam": 3134,
+                "Pind Bhagwal": 3145
+              },
+              "Rawalpindi": {
+                "Arya Mohallah": 3101,
+                "Dheri Hasan Abad": 3103,
+                "Satellite Town": 3105,
+                "Dhoke Ratta": 3106,
+                "Amar Pura": 3124,
+                "Raja Bazar": 3135
+              },
+              "Tench Bhata": {
+                "Tench Bhata": 3102,
+                "Chakri": 3114,
+                "Chak Jalal Din": 3117,
+                "Bank Colony Chakri Road": 3118,
+                "Pariyal": 3120,
+                "Misrial": 3126,
+                "Chak Beli Khan": 3131,
+                "Adhwal": 3132,
+                "Ranial": 3133
+              }
+            }
+          },
+          "Sahiwal": {
+            areas: {
+              "Burewala": {
+                "Qaboola Sharif": 2506,
+                "Burewala": 2704,
+                "Burewala-2": 2705,
+                "Gaggo Mandi": 2707,
+                "Machiwal": 2709
+              },
+              "Mian Channu": {
+                "Tulamba": 2303,
+                "Mian Channu": 2304,
+                "Abdul Hakeem": 2306,
+                "Kacha Khuh": 2309,
+                "Chak No.29": 2310,
+                "Mohsinwal": 2312,
+                "Chichawatni": 2603,
+                "Ghazi Abad": 2608,
+                "Adda Dad Fatiana": 2609,
+                "Kassowal": 2610
+              },
+              "Okara": {
+                "Bunga Hayat": 2505,
+                "Okara": 6401,
+                "Depalpur": 6402,
+                "Renala Khurd": 6403,
+                "Haveli Lakha": 6404,
+                "Okara-2": 6405,
+                "Hujra Shah Muqeem": 6406,
+                "Depalpur-2": 6407,
+                "Young Pur": 6409,
+                "Basir Pur": 6410,
+                "Okara-3": 6411,
+                "Hujra Shah Muqeem-2": 6412,
+                "Depalpur Agri": 6413
+              },
+              "Sahiwal": {
+                "Pakpattan": 2501,
+                "Arifwala": 2502,
+                "Malka Hans": 2503,
+                "Pakpattan-2": 2504,
+                "Sahiwal-1": 2601,
+                "Sahiwal-2": 2602,
+                "Harappa": 2605,
+                "Kameer Wala": 2611
+              }
+            }
+          },
+          "Sargodha": {
+            areas: {
+              "Bhera": {
+                "Chot Dheeran": 1403,
+                "Head Faqirian": 1409,
+                "Miani": 3201,
+                "Bhera": 3206,
+                "Phularwan": 3210,
+                "Hathi Wind": 3225
+              },
+              "Khushab": {
+                "Shahpur": 3207,
+                "Jhawarian": 3214,
+                "Shahpur-2": 3223,
+                "Khushab": 3401,
+                "Jauharabad": 3403,
+                "Nowshera": 3404
+              },
+              "Kot Momin": {
+                "Wan Miana": 3202,
+                "Bhalwal-1": 3205,
+                "Kot Momin": 3209,
+                "Bhalwal-2": 3211,
+                "Moazzam Abad": 3213,
+                "Chowki Bhagat": 3222,
+                "Maila": 3224,
+                "Midh Ranjha": 3226,
+                "Hujjan": 3227
+              },
+              "Sargodha": {
+                "Sargodha-1": 3203,
+                "Sargodha-2": 3204,
+                "Sillanwali": 3208,
+                "Sahiwal (Distt Sargodha)": 3212,
+                "Sargodha-3": 3217,
+                "49 Tail(Agri)": 3218,
+                "Farooqa (Agri)": 3219,
+                "Sillanwali (Agri)": 3220,
+                "Nihang": 3221,
+                "Lak Mor": 3228
+              }
+            }
+          },
+          "Sheikhupura": {
+            areas: {
+              "Data sahib": {
+                "Data Sahib": 1705,
+                "Nain Sukh": 1711,
+                "Hall Road": 1716,
+                "Badami Bagh": 1727,
+                "Sanda": 1745
+              },
+              "Kamoke": {
+                "Muridke": 1103,
+                "Kamoke-1": 1105,
+                "Kala Shah Kaku": 1108,
+                "Kamoke-2": 1110,
+                "Sadhoke": 1115,
+                "Kamoke-Agri": 1116,
+                "Nowshera Virkan": 1120,
+                "Narang Mandi": 2109,
+                "Ferozewala": 2111,
+                "Rana Town": 2118
+              },
+              "Kot Abdul Malik": {
+                "Nankana Sahib": 1902,
+                "Bucheki": 1905,
+                "More Khunda": 1906,
+                "Warburton": 1907,
+                "Mana Wala": 1908,
+                "Punwa": 1909,
+                "5 Chak Bara": 1910,
+                "Nankana-2": 1912,
+                "Bucheki-2": 1913,
+                "More Khunda-2": 1914,
+                "Sharqpur": 2104,
+                "Mandi Faizabad": 2106,
+                "Kot Roshan Din": 2108,
+                "Burj Attari": 2113,
+                "Feroze Wattwan": 2114,
+                "Kharianwala": 2115
+              },
+              "Muridke": {
+                "Kot Abdul Malik": 1733,
+                "Begum kot": 1756,
+                "Sheikhupura": 2102,
+                "Farooqabad": 2103,
+                "Shahdara": 2105,
+                "Shahdara-2": 2110,
+                "Kot Abdul Malik-2": 2112
+              }
+            }
+          },
+          "Sukkur": {
+            areas: {
+              "Hyderabad": {
+                "Hyderabad": 33301,
+                "Tando Allah yar": 33401,
+                "Mirpur Khas": 34201,
+                "Digri": 34202,
+                "Tando Jan Muhammad": 34203,
+                "Umerkot": 34301,
+                "Kunri": 34302,
+                "Mithi": 34401
+              },
+              "Jacob Abad": {
+                "Jacob Abad": 31101,
+                "Sibi": 46501
+              },
+              "Rohri": {
+                "Sukkur-2": 5002,
+                "Rohri": 32103,
+                "Pano Aqil": 32104,
+                "Mirpur Mathelo": 32201,
+                "Ghotki": 32202
+              },
+              "Sukkur": {
+                "Sukkur-1": 5001,
+                "Khairpur-1": 32301,
+                "Khairpur-2": 32302,
+                "Ranipur": 32304
+              }
+            }
+          }
+        };
+
+        const regionSelect = document.getElementById("region");
+        const areaSelect = document.getElementById("area");
+        const branchSelect = document.getElementById("branch");
+        const branchCodeInput = document.getElementById("branch-code");
+
+        regionSelect.addEventListener("change", function () {
+          const selectedRegion = this.value;
+
+          // Reset area, branch, code
+          areaSelect.innerHTML = '<option value="" disabled selected>Select Area</option>';
+          branchSelect.innerHTML = '<option value="" disabled selected>Select Branch</option>';
+          branchCodeInput.value = "";
+
+          if (regionData[selectedRegion]) {
+            const areas = Object.keys(regionData[selectedRegion].areas);
+            areas.forEach(area => {
+              const opt = document.createElement("option");
+              opt.textContent = area;
+              areaSelect.appendChild(opt);
+            });
+          }
+        });
+
+        // When area changes
+        areaSelect.addEventListener("change", function () {
+          const selectedRegion = regionSelect.value;
+          const selectedArea = this.value;
+
+          // Reset branch and code
+          branchSelect.innerHTML = '<option value="" disabled selected>Select Branch</option>';
+          branchCodeInput.value = "";
+
+          if (regionData[selectedRegion] && regionData[selectedRegion].areas[selectedArea]) {
+            const branches = regionData[selectedRegion].areas[selectedArea];
+            for (let branch in branches) {
+              const opt = document.createElement("option");
+              opt.textContent = branch;
+              branchSelect.appendChild(opt);
+            }
+          }
+        });
+
+        // When branch changes
+        branchSelect.addEventListener("change", function () {
+          const selectedRegion = regionSelect.value;
+          const selectedArea = areaSelect.value;
+          const selectedBranch = this.value;
+
+          if (
+            regionData[selectedRegion] &&
+            regionData[selectedRegion].areas[selectedArea] &&
+            regionData[selectedRegion].areas[selectedArea][selectedBranch]
+          ) {
+            branchCodeInput.value = regionData[selectedRegion].areas[selectedArea][selectedBranch];
+          } else {
+            branchCodeInput.value = "";
+          }
+        });
+
+      </script>
+
+
+    </form>
+  </div>
+</body>
+
+</html>

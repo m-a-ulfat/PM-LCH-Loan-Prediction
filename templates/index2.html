@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PM-LCH Loan Application</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" /> -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #f0f2f5;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #0052cc;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0052cc;
+      border-bottom: 2px solid #0052cc;
+      padding-bottom: 6px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .form-field {
+      flex: 1 1 45%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #0041a3;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"] {
+      padding: 10px 14px;
+      font-size: 1rem;
+      border: 1.8px solid #bbb;
+      border-radius: 6px;
+      transition: border-color 0.3s ease;
+      outline: none;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: #0052cc;
+      box-shadow: 0 0 6px #c2d1ff;
+    }
+
+    button[type="submit"] {
+      display: block;
+      margin: 30px auto 0;
+      background-color: #0052cc;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 14px 40px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0, 82, 204, 0.3);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #003d99;
+      box-shadow: 0 12px 24px rgba(0, 61, 153, 0.5);
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #e8f4ff;
+      border-left: 6px solid #007bff;
+      color: #004085;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    img {
+      display: block;
+      margin: 20px auto;
+      max-width: 715px;
+      border-radius: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-field {
+        flex: 1 1 100%;
+      }
+    }
+
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .tax-paid {
+      background-color: #e6ffed;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+
+    .tax-not-paid {
+      background-color: #fff0f0;
+      color: #a94442;
+      border: 2px solid #f5c6cb;
+    }
+  </style>
+</head>
+
+
+
+<body>
+    <div class="container">
+
+      <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" class="logo" />
+
+    <h2>PM-LCH Loan Application Form</h2>
+    <form method="POST" action="/predict">
+      <!-- LOCATION -->
+      <div class="section">
+        <div class="section-title">Location</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="region">Region</label>
+            <select id="region" name="region" required>
+              <option value="" disabled selected>Select Region</option>
+              <option>AJ&K</option>
+              <option>Abbottabad</option>
+              <option>Attock</option>
+              <option>Bahawalnagar</option>
+              <option>Bahawalpur</option>
+              <option>Chakwal</option>
+              <option>DG Khan</option>
+              <option>Faisalabad</option>
+              <option>FATA</option>
+              <option>Gujranwala</option>
+              <option>Jhelum</option>
+              <option>Jhang</option>
+              <option>Karachi</option>
+              <option>Kasur</option>
+              <option>Kohat</option>
+              <option>Lahore</option>
+              <option>Mianwali</option>
+              <option>Multan</option>
+              <option>Nowshera</option>
+              <option>Quetta</option>
+              <option>Rawalpindi</option>
+              <option>Sahiwal</option>
+              <option>Sargodha</option>
+              <option>Sheikhupura</option>
+              <option>Sukkur</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="area">Area</label>
+            <select id="area" name="area" required>
+              <option value="" disabled selected>Select Area</option>
+              <option>Abbaspur</option>
+              <option>Abbottabad</option>
+              <option>Alipur</option>
+              <option>Attock</option>
+              <option>Bahawalnagar</option>
+              <option>Bahawalpur</option>
+              <option>Bajaur</option>
+              <option>Bannu</option>
+              <option>Battagram</option>
+              <option>Bhakkar</option>
+              <option>Bhera</option>
+              <option>Burewala</option>
+              <option>Chiniot</option>
+              <option>Chishtian</option>
+              <option>Chitral</option>
+              <option>D.G Khan</option>
+              <option>D.I. Khan</option>
+              <option>Faisalabad</option>
+              <option>Fateh Jang</option>
+              <option>Gareebabad</option>
+              <option>Gujranwala</option>
+              <option>Gujrat</option>
+              <option>Hafizabad</option>
+              <option>Islamabad</option>
+              <option>Jahanian</option>
+              <option>Jand</option>
+              <option>Jhang</option>
+              <option>Jhelum</option>
+              <option>Jhelum Valley</option>
+              <option>Kala Bagh</option>
+              <option>Kallar Kahar</option>
+              <option>Kamoke</option>
+              <option>Karachi</option>
+              <option>Kasur</option>
+              <option>Khanpur</option>
+              <option>Khushab</option>
+              <option>Khuzdar</option>
+              <option>Khyber</option>
+              <option>Korangi</option>
+              <option>Kot Momin</option>
+              <option>Kotli</option>
+              <option>Lodhran(Bahawalpur2)</option>
+              <option>Loralai</option>
+              <option>Madhulal</option>
+              <option>Mandi Bahauddin</option>
+              <option>Mansehra</option>
+              <option>Mardan</option>
+              <option>Mianwali</option>
+              <option>Mirpur</option>
+              <option>Mohmand</option>
+              <option>Multan</option>
+              <option>Muridke</option>
+              <option>Muzaffarabad</option>
+              <option>Narowal</option>
+              <option>Nishtar</option>
+              <option>Nowshera</option>
+              <option>Nushki</option>
+              <option>Pattoki</option>
+              <option>Peshawar</option>
+              <option>Pichnand</option>
+              <option>Pind Dadan Khan</option>
+              <option>Quetta</option>
+              <option>Quidabad</option>
+              <option>Rahim yar Khan</option>
+              <option>Rajana</option>
+              <option>Rajanpur</option>
+              <option>Rangeel Pur</option>
+              <option>Rasheed Abad</option>
+              <option>Rawalakot</option>
+              <option>Rawalpindi</option>
+              <option>Rohri</option>
+              <option>Sahiwal</option>
+              <option>Salamatpura</option>
+              <option>Samundari</option>
+              <option>Sangla Hill</option>
+              <option>Sargodha</option>
+              <option>Shorkot</option>
+              <option>Sialkot</option>
+              <option>Swabi</option>
+              <option>Tank</option>
+              <option>Taunsa Sharif</option>
+              <option>Taxila</option>
+              <option>Tench Bhata</option>
+              <option>Theeng More</option>
+              <option>Thokar</option>
+              <option>Toba Tek Singh</option>
+              <option>Vehari</option>
+
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="branch">Branch</label>
+            <select id="branch" name="branch">
+              <option value="" disabled selected>Select Branch</option>
+              <option>49 Tail(Agri)</option>
+              <option>Abbaspur</option>
+              <option>Abbottabad</option>
+              <option>Abbottabad-2</option>
+              <option>Ahmedpur Sharqia-1</option>
+              <option>Akora Khattak</option>
+              <option>Alam Chowk</option>
+              <option>Ali Pur Chatha</option>
+              <option>Ali Town</option>
+              <option>Arzani Pur</option>
+              <option>Athara Hazari</option>
+              <option>Attock-1</option>
+              <option>Attock-2</option>
+              <option>Attock-4</option>
+              <option>Baffa</option>
+              <option>Bagh</option>
+              <option>Baghbanpura</option>
+              <option>Bagrian</option>
+              <option>Bahawalnagar-1</option>
+              <option>Bahawalnagar-2</option>
+              <option>Bahawalnagar-3</option>
+              <option>Bahawalpur Bypass</option>
+              <option>Bahawalpur-1</option>
+              <option>Bahawalpur-2</option>
+              <option>Bahawalpur-3</option>
+              <option>Baka Khel</option>
+              <option>Bakhshu Pull</option>
+              <option>Balakot</option>
+              <option>Baldia Town</option>
+              <option>Baloch</option>
+              <option>Bank Colony Chakri Road</option>
+              <option>Bannu-1</option>
+              <option>Bannu-2</option>
+              <option>Bara</option>
+              <option>Bara-2</option>
+              <option>Barnala</option>
+              <option>Basti</option>
+              <option>Bawa Chak</option>
+              <option>Bhakkar-1</option>
+              <option>Bhalwal-1</option>
+              <option>Bhalwal-2</option>
+              <option>Bhard Wall</option>
+              <option>Bhera</option>
+              <option>Bhimber</option>
+              <option>Bhittai Colony</option>
+              <option>Bhoa Hassan</option>
+              <option>Brewery Road</option>
+              <option>Burewala</option>
+              <option>Burewala-2</option>
+              <option>Chak Jalal Din</option>
+              <option>Chak Madressa</option>
+              <option>Chaklala</option>
+              <option>Chakwal</option>
+              <option>Chanderay Road</option>
+              <option>Changa Manga</option>
+              <option>Charsadda</option>
+              <option>Chehla Bandi</option>
+              <option>Chiniot-2</option>
+              <option>Chishtian-1</option>
+              <option>Chishtian-2</option>
+              <option>Chishtian-3</option>
+              <option>Chitral</option>
+              <option>Chot Dheeran</option>
+              <option>Chota Lahore</option>
+              <option>Chowk Kumharan Wala</option>
+              <option>Chungi # 14 Multan-5</option>
+              <option>Chunian</option>
+              <option>College Road Jhang</option>
+              <option>D.G Khan-1</option>
+              <option>D.G Khan-2</option>
+              <option>D.I. Khan-2</option>
+              <option>Dahranwala</option>
+              <option>Daulat Nagar</option>
+              <option>Dera Bakha</option>
+              <option>Dharyala Jalap</option>
+              <option>Dheri Hasan Abad</option>
+              <option>Dhirkot</option>
+              <option>Dhoke Ratta</option>
+              <option>Dijkot</option>
+              <option>Dinga</option>
+              <option>Dir</option>
+              <option>Drosh</option>
+              <option>Dunyapur</option>
+              <option>Faqeerabad</option>
+              <option>Faqir Wali</option>
+              <option>Fateh Jang</option>
+              <option>Ferozewala</option>
+              <option>Garh More</option>
+              <option>Garhi Dupatta</option>
+              <option>Garhi Habibullah</option>
+              <option>Gharibabad</option>
+              <option>Ghulam Muhammad Abad</option>
+              <option>Ghurki Hospital</option>
+              <option>Gojra</option>
+              <option>Gojra-Mandi</option>
+              <option>Gondal</option>
+              <option>Green Town</option>
+              <option>Gujrat-1</option>
+              <option>Gulshan Iqbal</option>
+              <option>Gulyana</option>
+              <option>Habibabad</option>
+              <option>Hafizabad</option>
+              <option>Haider Chowk</option>
+              <option>Hajira</option>
+              <option>Hajji Chand</option>
+              <option>Harappa</option>
+              <option>Harighel</option>
+              <option>Haripur</option>
+              <option>Harnoli</option>
+              <option>Haroonabad-1</option>
+              <option>Hasilpur</option>
+              <option>Hassan Abdal</option>
+              <option>Hassan Abdal(Sultanpur)</option>
+              <option>Hattian Bala</option>
+              <option>Havelian</option>
+              <option>Hazro</option>
+              <option>Head Faqirian</option>
+              <option>Ikhlas</option>
+              <option>Isa Khel</option>
+              <option>Islamabad-2 (Golra)</option>
+              <option>Jahan Khan Agri</option>
+              <option>Jahanian</option>
+              <option>Jajjal</option>
+              <option>Jalalpur Jattan</option>
+              <option>Jampur-1</option>
+              <option>Jampur-2</option>
+              <option>Jamrud</option>
+              <option>Jauharabad</option>
+              <option>Jehangira</option>
+              <option>Jhang Saddar</option>
+              <option>Jhang Village</option>
+              <option>Jhang city</option>
+              <option>Jhang-1(Bhakkar Road)</option>
+              <option>Jhang-2(Satellite town)</option>
+              <option>Jhari Kas</option>
+              <option>Jhelum</option>
+              <option>Jhelum-2</option>
+              <option>Kabirwala</option>
+              <option>Kahna Nau</option>
+              <option>Kahna Nau-2</option>
+              <option>Kahror Pakka</option>
+              <option>Kala Shah Kaku</option>
+              <option>Kalabagh</option>
+              <option>Kalaske</option>
+              <option>Kallur Kot</option>
+              <option>Kamar Mushani</option>
+              <option>Kamra</option>
+              <option>Kanganpur</option>
+              <option>Kareem Pura</option>
+              <option>Karor Lal Esan</option>
+              <option>Kasur-1</option>
+              <option>Kasur-2</option>
+              <option>Kasur-3</option>
+              <option>Khai Gala</option>
+              <option>Khairpur Tamiwali</option>
+              <option>Khan Pur-1</option>
+              <option>Khanewal</option>
+              <option>Khar</option>
+              <option>Kharian</option>
+              <option>Khaur</option>
+              <option>Khiali bypass</option>
+              <option>Khudian</option>
+              <option>Kinjwani</option>
+              <option>Kot Abdul Malik</option>
+              <option>Kot Abdul Malik-2</option>
+              <option>Kot Addu</option>
+              <option>Kot Chajji</option>
+              <option>Kot Mithan-Urban</option>
+              <option>Kot Momin</option>
+              <option>Kot Radha Kishan-1</option>
+              <option>Kot Radha Kishan-2</option>
+              <option>Kotla Jam</option>
+              <option>Kotli</option>
+              <option>Kundian</option>
+              <option>Lak Mor</option>
+              <option>Lakki Marwat</option>
+              <option>Lalamusa</option>
+              <option>Landay</option>
+              <option>Landi kotal</option>
+              <option>Lawa</option>
+              <option>Lawrencepur</option>
+              <option>Leather</option>
+              <option>Lodhran</option>
+              <option>Lodhran (Agri)</option>
+              <option>Loralai</option>
+              <option>Loralai-2</option>
+              <option>Machiwal</option>
+              <option>Macleod Ganj</option>
+              <option>Malakwal</option>
+              <option>Manawan</option>
+              <option>Mandi Gundhab</option>
+              <option>Mandi Usman Wala</option>
+              <option>Mang</option>
+              <option>Manga Mandi</option>
+              <option>Mankera</option>
+              <option>Mansehra-1</option>
+              <option>Mansehra-2</option>
+              <option>Mansehra-3</option>
+              <option>Mardan</option>
+              <option>Mastung</option>
+              <option>Maula Pur</option>
+              <option>Miani</option>
+              <option>Mianwali Bangla</option>
+              <option>Mianwali-1</option>
+              <option>Mianwali-2</option>
+              <option>Minchinabad</option>
+              <option>Minchinabad-2</option>
+              <option>Mitha Tiwana</option>
+              <option>Mullan Mansoor</option>
+              <option>Multan-1</option>
+              <option>Multan-2</option>
+              <option>Mumtazabad</option>
+              <option>Mustafa Abad</option>
+              <option>Muzafarabad- Multan</option>
+              <option>Muzaffarabad</option>
+              <option>Muzaffarabad-2</option>
+              <option>Nakyal</option>
+              <option>Narowal</option>
+              <option>Nawabpur</option>
+              <option>Nawabpura</option>
+              <option>Nawan Killi</option>
+              <option>Nishat Abad</option>
+              <option>Nothia</option>
+              <option>Nowshera</option>
+              <option>Nowshera Kalan</option>
+              <option>Pabbi</option>
+              <option>Pallandri</option>
+              <option>Par Hoti</option>
+              <option>Pasrur-1</option>
+              <option>Pasrur-2</option>
+              <option>Patikka</option>
+              <option>Pattoki-1</option>
+              <option>Peoples Colony</option>
+              <option>Perro Khail</option>
+              <option>Peshawar</option>
+              <option>Phalia</option>
+              <option>Phularwan</option>
+              <option>Pinanwal</option>
+              <option>Pindi Saidpur</option>
+              <option>Pir Mahal</option>
+              <option>Pishin</option>
+              <option>Pul Wasal Chungi # 1</option>
+              <option>Qambar Khail</option>
+              <option>Qasim Bela</option>
+              <option>Qasim Pur (BCG Chowk)</option>
+              <option>Qazafi</option>
+              <option>Qila Ahmed Abad</option>
+              <option>Qutbal</option>
+              <option>Rahim Yar Khan</option>
+              <option>Rahim Yar Khan-2</option>
+              <option>Rahim Yar Khan-4</option>
+              <option>Rahwali Cantt</option>
+              <option>Raiwind</option>
+              <option>Raja Jang</option>
+              <option>Raja Pur</option>
+              <option>Rajanpur</option>
+              <option>Rana Town</option>
+              <option>Ranial</option>
+              <option>Rasheed Abad</option>
+              <option>Rati Pindi</option>
+              <option>Risalpur</option>
+              <option>Rodu Sultan</option>
+              <option>Rohri</option>
+              <option>Sadhar (Agri)</option>
+              <option>Sahiwal (Distt Sargodha)</option>
+              <option>Sahiwal-1</option>
+              <option>Sahiwal-2</option>
+              <option>Samanabad</option>
+              <option>Samundri Road(FSD)</option>
+              <option>Sangla Hill</option>
+              <option>Sarai Sala</option>
+              <option>Sargodha-1</option>
+              <option>Sargodha-2</option>
+              <option>Sargodha-3</option>
+              <option>Sarsawa</option>
+              <option>Saryab Road</option>
+              <option>Satellite Town (Quetta)</option>
+              <option>Shah Kot</option>
+              <option>Shahdara</option>
+              <option>Shakargarh</option>
+              <option>Sham Kot</option>
+              <option>Sharif Pura</option>
+              <option>Sheikhupura</option>
+              <option>Sher Shah</option>
+              <option>Shewa</option>
+              <option>Shinkiari</option>
+              <option>Shorkot</option>
+              <option>Shuja Abad</option>
+              <option>Sialkot-2</option>
+              <option>Sikander Pura</option>
+              <option>Sillanwali (Agri)</option>
+              <option>Swabi</option>
+              <option>Takht Bhai</option>
+              <option>Talwandi</option>
+              <option>Tanda</option>
+              <option>Tank-2</option>
+              <option>Tarar Khal</option>
+              <option>Taunsa Sharif-2</option>
+              <option>Taxila</option>
+              <option>Tench Bhata</option>
+              <option>Theeng More-2</option>
+              <option>Theing Mor</option>
+              <option>Thokar Niaz Baig</option>
+              <option>Thorar</option>
+              <option>Toba Tek Singh</option>
+              <option>Ugoke</option>
+              <option>Vehari</option>
+              <option>Vehari-2</option>
+              <option>Wassan pura</option>
+              <option>Yaka Ghund</option>
+              <option>Yazman Mandi</option>
+              <option>Zafarwal</option>
+              <option>Zaida</option>
+              <option>Zakariya Town</option>
+              <option>Zhob</option>
+
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="branch-code">Branch Code</label>
+            <input type="number" id="branch-code" name="branch_code" required min="0" placeholder="Enter Branch Code" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PERSONAL INFO -->
+      <div class="section">
+        <div class="section-title">Personal Information</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+              <option value="" disabled selected>Select Gender</option>
+              <option>M</option>
+              <option>F</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="18" max="100" required />
+          </div>
+          <div class="form-field">
+            <label for="age-level">Age Level</label>
+            <select id="age-level" name="age_level" required>
+              <option value="" disabled selected>Select Age Level</option>
+              <option>Middle Age (30-45)</option>
+              <option>Older (46-Above)</option>
+              <option>Young (19-29)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="education">Education</label>
+            <select id="education" name="education" required>
+              <option value="" disabled selected>Select Education</option>
+              <option>Intermediate</option>
+              <option>Masters</option>
+              <option>Middle</option>
+              <option>Matric</option>
+              <option>Primary</option>
+              <option>Bachelor</option>
+              <option>Illiterate</option>
+              <option>Mphil</option>
+              <option>Phd</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="marital-status">Marital Status</label>
+            <select id="marital-status" name="marital_status" required>
+              <option value="" disabled selected>Select Marital Status</option>
+              <option>Married</option>
+              <option>Divorced</option>
+              <option>Single</option>
+              <option>Widow</option>
+              <option>Widower</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="house-ownership">House Ownership</label>
+            <select id="house-ownership" name="house_ownership" required>
+              <option value="" disabled selected>Select House Ownership</option>
+              <option>Owned</option>
+              <option>Rented</option>
+              <option>Mortgage</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- FINANCE -->
+      <div class="section">
+        <div class="section-title">Family & Finance</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="total-family-members">Total Family Members</label>
+            <input type="number" id="total-family-members" name="total_family_members" min="1" required />
+          </div>
+          <div class="form-field">
+            <label for="earning-hands">No. of Earning Hands</label>
+            <input type="number" id="earning-hands" name="no_of_earning_hands" min="0" required />
+          </div>
+          <div class="form-field">
+            <label for="source-of-income">Source of Income</label>
+            <select id="source-of-income" name="source_of_income" required>
+              <option value="" disabled selected>Select Source of Income</option>
+              <option>Both</option>
+              <option>Employment</option>
+              <option>Business</option>
+              <option>Agriculture</option>
+              <option>Labour</option>
+              <option>All</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="income">Income</label>
+            <input type="number" id="income" name="income" min="0" required />
+          </div>
+          <div class="form-field">
+            <label for="expenses">Expenses</label>
+            <input type="number" id="expenses" name="expenses" step="0.01" min="0" required />
+          </div>
+          <div class="form-field">
+            <label for="monthly-saving">Monthly Saving Type</label>
+            <select id="monthly-saving" name="monthly_saving" required>
+              <option value="" disabled selected>Select Monthly Saving Type</option>
+              <option>Committee</option>
+              <option>At_home</option>
+              <option>No_saving</option>
+              <option>Bank_saving</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="saving-amount">Saving Amount</label>
+            <input type="number" id="saving-amount" name="saving_amount" min="0" step="0.01" />
+          </div>
+          <div class="form-field">
+            <label for="who-will-earn">Who Will Earn</label>
+            <select id="who-will-earn" name="who_will_earn" required>
+              <option value="" disabled selected>Select Earner</option>
+              <option>Other</option>
+              <option>Self</option>
+              <option>Spouse</option>
+              <option>Father</option>
+              <option>Son</option>
+              <option>Brother</option>
+              <option>Mother</option>
+              <option>Father in Law</option>
+              <option>Son in Law</option>
+              <option>Daughter</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SOCIAL -->
+        <div class="section">
+          <div class="section-title">Social & Earnings</div>
+          <div class="form-group">
+            <div class="form-field">
+              <label for="social-behavior">Social Behavior</label>
+              <select id="social-behavior" name="social_behavior" required>
+                <option value="" disabled selected>Select Social Behavior</option>
+                <option>Good</option>
+                <option>Very_good</option>
+                <option>Very_bad</option>
+                <option>Bad</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- LOAN DETAILS -->
+      <div class="section">
+        <div class="section-title">Loan Details</div>
+        <div class="form-group">
+          <div class="form-field">
+            <label for="loan-amount">Loan Amount</label>
+            <input type="number" id="loan-amount" name="loan_amount" min="0" required />
+          </div>
+          <div class="form-field">
+            <label for="inst-months">Installment Months</label>
+            <select id="inst-months" name="inst_months" required>
+              <option value="" disabled selected>Select Installment Months</option>
+              <option>60</option>
+              <option>36</option>
+              <option>42</option>
+              <option>48</option>
+              <option>24</option>
+              <option>30</option>
+              <option>54</option>
+              <option>21</option>
+              <option>12</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="inst-amnt">Installment Amount</label>
+            <input type="number" id="inst-amnt" name="inst_amnt" min="0" required />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="education">Activity</label>
+        <select id="activity" name="activity" required>
+          <option value="" disabled selected></option>
+          <option>Addition</option>
+          <option>New Construction</option>
+          <option>Renovation / Up-gradation</option>
+        </select>
+      </div>
+      <button type="submit">Submit Application</button>
+
+      {% if prediction_text %}
+      {% if "Tax paid" in prediction_text %}
+      <div class="result tax-paid">
+        ✅ {{ prediction_text }}
+      </div>
+      {% elif "Tax not paid" in prediction_text %}
+      <div class="result tax-not-paid">
+        ⚠️ {{ prediction_text }}
+      </div>
+      {% else %}
+      <div class="result">
+        {{ prediction_text }}
+      </div>
+      {% endif %}
+      {% endif %}
+
+    </form>
+  </div>
+</body>
+
+</html>
