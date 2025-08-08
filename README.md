@@ -1,6 +1,6 @@
 # PM-LCH Loan Prediction
 
-![Project Logo](Logo.jpeg)
+![Project Logo](static/Logo.jpeg)
 
 ## 📌 Overview
 The **PM-LCH Loan Prediction** project is a Machine Learning solution developed to assist in predicting loan approval status for applicants under the **Prime Minister's Low-Cost Housing Scheme (PM-LCH)**.  
