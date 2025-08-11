@@ -29,7 +29,8 @@ PM-LCH-Loan-Prediction/
 │── train_model.py # Model training script
 │── README.md # Project documentation
 │── Logo.jpeg # Project logo
-
+## Form Overview
+![Images](Form of Prediction.jpeg)
  
 ## ⚙️ How It Works
 1. **Data Collection** – Data is gathered from loan applicants.
