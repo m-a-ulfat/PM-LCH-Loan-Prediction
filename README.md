@@ -31,7 +31,6 @@ PM-LCH-Loan-Prediction/
 │── Logo.jpeg # Project logo
 ## Form Overview
 ![images]()
-![Project Logo](Form of Prediction.jpeg)
 
 ## ⚙️ How It Works
 1. **Data Collection** – Data is gathered from loan applicants.
